@@ -11,7 +11,7 @@ namespace
 	constexpr float kShotBegin = 0.0f;
 
 	// ショットを消す位置
-	constexpr float kShotDedetePosY = 100.0f;
+	constexpr float kShotDedetePosZ = 100.0f;
 }
 
 
@@ -40,7 +40,7 @@ void Shot::start(VECTOR pos)
 	m_pos = pos;
 
 	// ショットを撃ち始めの位置を変更する
-	m_pos.y += kShotBegin;
+	m_pos.z += kShotBegin;
 }
 
 void Shot::update()
@@ -64,16 +64,16 @@ void Shot::draw()
 	if (!m_isExist) return;
 
 	// 弾の表示
-	//DrawSphere3D(m_pos, kShotSize, 32, GetColor(255, 0, 0), GetColor(0, 0, 0), true);
+	DrawSphere3D(m_pos, kShotSize, 32, GetColor(255, 0, 0), GetColor(0, 0, 0), true);
 
 	// 画像描画
-	DrawBillboard3D(m_pos, 0.5, 0.5, 1.0, 0.0, m_handle, true);
+	//DrawBillboard3D(m_pos, 0.5, 0.5, 1.0, 0.0, m_handle, true);
 }
 
 void Shot::BulletTrajectory()
 {
 	// 弾が上方向に飛んでいく
-	m_pos.y += kShotSpeed;
+	m_pos.z += kShotSpeed;
 }
 
 void Shot::Collision2D()
@@ -84,7 +84,7 @@ void Shot::Collision2D()
 void Shot::LimitMove()
 {
 	// 一定の位置まで進んだら弾を消す
-	if (m_pos.y >= kShotDedetePosY)
+	if (m_pos.z >= kShotDedetePosZ)
 	{
 		// 弾の存在を消す
 		m_isExist = false;

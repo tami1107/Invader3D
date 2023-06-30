@@ -1,6 +1,6 @@
 #include "Camera.h"
 #include "Player.h"
-
+#include "Pad.h"
 
 namespace
 {
@@ -9,11 +9,16 @@ namespace
 
 	// カメラのY座標位置
 	constexpr float kCameraPosY = 50.0f;
+
+	// カメラの回転位置
+	constexpr float kCameraRot = 0.8f;
 }
 
 
 Camera::Camera():
 	m_pos(),
+	m_cameraRot(0.0f),
+	m_cameraNum(0),
 	m_pPlayer(std::make_shared<Player>())
 {
 }
@@ -30,6 +35,8 @@ void Camera::init()
 	// 位置の初期化
 	m_pos = VGet(0.0f, 0.0f, 0.0f);
 
+	// カメラの回転初期値
+	m_cameraRot = kCameraRot;
 }
 
 void Camera::update()
@@ -37,15 +44,53 @@ void Camera::update()
 	// プレイヤーの位置を入れる
 	VECTOR playerPos = m_pPlayer->getPos();
 
-	// カメラ位置の更新
-	m_pos = VGet(playerPos.x, playerPos.y + kCameraPosY, kCameraZoom+ playerPos.z);
 
 
-	// カメラの回転位置
-	VECTOR cameraPos = VGet(playerPos.x, playerPos.y + 50, playerPos.z-20);
+	// カメラの回転を変更する
+	if (Pad::isTrigger(PAD_INPUT_2))
+	{
+		m_cameraNum++;
+
+		// 0と1しか使わない
+		if (m_cameraNum == 2)
+		{
+			m_cameraNum = 0;
+		}
+	}
+
+
+	VECTOR cameraPos = {};
+
+	if (m_cameraNum == 0)
+	{
+		m_cameraRot = kCameraRot;
+
+		// カメラの回転位置
+		cameraPos = VGet(playerPos.x, playerPos.y + 50, playerPos.z-20);
+
+	}
+	else if (m_cameraNum == 1)
+	{
+		m_cameraRot = 0.0f;
+
+		// カメラの回転位置
+		cameraPos = VGet(playerPos.x, playerPos.y+10, playerPos.z-10);
+	}
+
+
+
 
 	// カメラの回転角度
-	SetCameraPositionAndAngle(cameraPos, 0.8f, 0.0f, 0.0f);
+	SetCameraPositionAndAngle(cameraPos, m_cameraRot, 0.0f, 0.0f);
+
+
+
+
+
+
+
+	//// カメラ位置の更新
+	//m_pos = VGet(playerPos.x, playerPos.y + kCameraPosY, kCameraZoom+ playerPos.z);
 
 	//// カメラの注視点( 見ている座標 )
 	//VECTOR targetPos = VGet(m_pos.x, m_pos.y, 0.0f);
@@ -56,20 +101,7 @@ void Camera::update()
 
 void Camera::draw()
 {
-	//XYZ軸、デバッグ描写
-	float lineSize = 1000.0f;
-	DrawLine3D(VGet(-lineSize, 0, 0), VGet(lineSize, 0, 0), GetColor(255, 0, 0));
-	DrawLine3D(VGet(0, -lineSize, 0), VGet(0, lineSize, 0), GetColor(0, 255, 0));
-	DrawLine3D(VGet(0, 0, -lineSize), VGet(0, 0, lineSize), GetColor(0, 0, 255));
 
-	float linePos = 10;
-	lineSize = 100.0f;
-
-	for (int i = 0; i < 10; i++)
-	{
-		DrawLine3D(VGet(-lineSize, 0, linePos * i), VGet(lineSize, 0, linePos * i), GetColor(255, 0, 0));
-
-	}
 	
 	
 

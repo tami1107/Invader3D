@@ -6,7 +6,7 @@ class Enemy
 {
 public:
 	// 半球サイズ
-	static constexpr float kCircleSize = 2.0f;
+	static constexpr float kCircleSize = 5.0f;
 
 	// エネミーグラフィック分割数
 	static constexpr int kEnemyGraphicDivX = 3;
@@ -20,7 +20,7 @@ public:
 	void getSceneMainPointer(SceneMain* sceneMain) { m_pSceneMain = sceneMain; }
 
 
-	void init(int savePosX, int savePosY, int decrementTime);
+	void init(int savePosX, int savePosZ, int decrementTime);
 
 	void update();
 	
@@ -77,7 +77,7 @@ private:
 	// 右に行くかどうか
 	bool m_isRightMove;
 
-	// 下に行くかどうか
+	// 手前に行くかどうか
 	bool m_isUnderMove;
 
 
@@ -98,8 +98,6 @@ private:
 
 	// ダメージアニメーションフレーム
 	int m_damageAnimationFrame;
-
-	
 
 
 	// 表示位置

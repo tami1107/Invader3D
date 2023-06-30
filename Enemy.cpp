@@ -5,7 +5,9 @@ namespace
 {
 	// 初期位置
 	constexpr float kInitPosX = 0.0f;
-	constexpr float kInitPosY = 100.0f;
+	constexpr float kInitPosY = 5.0f;
+	constexpr float kInitPosZ = 100.0f;
+
 
 
 	// ショットの生成間隔(フレーム数)
@@ -91,7 +93,7 @@ void Enemy::init(int savePosX, int savePosZ, int decrementTime)
 
 
 	// 位置の初期化
-	m_pos = VGet(kInitPosX + m_savePosX, 0.0f, kInitPosY + savePosZ);
+	m_pos = VGet(kInitPosX + m_savePosX, kInitPosY, kInitPosZ + savePosZ);
 
 	// 移動の間隔
 	m_frameCount = kMoveInterval - m_decrementTime;
@@ -136,7 +138,7 @@ void Enemy::update()
 	Move();
 
 	// ショット処理
-	//Shot();
+	Shot();
 
 
 }
@@ -146,7 +148,9 @@ void Enemy::draw()
 	// エネミーが存在しなかった場合、ここで処理を終了する
 	if (!m_isExist) return;
 
-
+	// ダメージを受けた場合、ここで処理を終了する
+	if (m_isHit)return;
+	
 
 	
 	// 球の表示

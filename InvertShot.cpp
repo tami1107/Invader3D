@@ -14,7 +14,7 @@ namespace
 	constexpr float kShotSize = 1.0f;
 
 	// ショットを消す位置
-	constexpr float kShotDedetePosY = 0.0f;
+	constexpr float kShotDedetePosZ = 0.0f;
 }
 
 
@@ -37,7 +37,7 @@ void InvertShot::start(VECTOR pos)
 	m_pos = pos;
 
 	// ショットを撃ち始めの位置を変更する
-	m_pos.y += kShotBegin;
+	m_pos.z += kShotBegin;
 }
 
 void InvertShot::update()
@@ -66,8 +66,8 @@ void InvertShot::draw()
 
 void InvertShot::BulletTrajectory()
 {
-	// 弾が下方向に飛んでいく
-	m_pos.y -= kShotSpeed;
+	// 弾が手前方向に飛んでいく
+	m_pos.z -= kShotSpeed;
 }
 
 void InvertShot::Collision2D()
@@ -83,14 +83,25 @@ void InvertShot::Collision2D()
 		float ar = kShotSize + Player::kCircleSize;// 当たり判定の大きさ
 		float dl = ar * ar;
 
-		// プレイヤーとエネミーが接触したとき
+		// プレイヤーのショットにエネミーが当たったとき(X,Y)
 		if (dr < dl)
 		{
-			// ターゲットクラスに弾が当たった情報を送る
-			m_pPlayer->getIsHit(true);
 
-			// 弾の存在を消す
-			m_isExist = false;
+			// 円形の当たり判定(Z,Y)
+			dx = m_pPlayer->getPos().z - m_pos.z;
+			dr = dx * dx + dy * dy;// A²＝B²＋C²
+
+			dl = ar * ar;
+
+			// プレイヤーとエネミーが接触したとき
+			if (dr < dl)
+			{
+				// ターゲットクラスに弾が当たった情報を送る
+				m_pPlayer->getIsHit(true);
+
+				// 弾の存在を消す
+				m_isExist = false;
+			}
 		}
 	}
 }
@@ -98,7 +109,7 @@ void InvertShot::Collision2D()
 void InvertShot::LimitMove()
 {
 	// 一定の位置まで進んだら弾を消す
-	if (m_pos.y <= kShotDedetePosY)
+	if (m_pos.z <= kShotDedetePosZ)
 	{
 		// 弾の存在を消す
 		m_isExist = false;

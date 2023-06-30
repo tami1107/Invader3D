@@ -23,6 +23,11 @@ private:
 	// 表示位置
 	VECTOR m_pos;
 
+	// カメラの回転
+	float m_cameraRot;
+
+	// カメラの表示番号
+	int m_cameraNum;
 
 	// クラスポインタ
 	std::shared_ptr<Player>m_pPlayer;

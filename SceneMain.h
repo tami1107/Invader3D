@@ -13,6 +13,8 @@ class Enemy;
 class Bunker;
 class GameOver;
 class MainUI;
+class BackGround;
+class Particle;
 class SceneMain : public SceneBase
 {
 public:
@@ -40,6 +42,8 @@ public:
 	// スコア加点
 	static constexpr int kAddedPoints = 10;
 
+	// パーティクルの最大数
+	static constexpr int kParticleMaxNum = 64;
 
 public:
 	SceneMain();
@@ -67,7 +71,6 @@ public:
 	// リセット処理
 	void RsetProcess();
 
-
 	// エネミーの生成
 	void CreateEnemy();
 
@@ -76,6 +79,12 @@ public:
 
 	// プレイヤーがダメージを受けたときの処理
 	void PlayerDamageProcess();
+
+
+	// パーティクル生成
+	void createParticle(VECTOR pos, int color);
+
+
 
 
 	// プレイヤーがショットを撃つ
@@ -140,6 +149,8 @@ private:
 	// ショットのグラフィック
 	int m_shotGraphic;
 
+	// Particleのグラフィック
+	int m_particleGraphic;
 
 	// クラスポインタ
 	std::shared_ptr<Player>m_pPlayer;
@@ -150,4 +161,6 @@ private:
 	std::shared_ptr<Bunker>m_pBunker[kBunkerMaxNum];
 	std::shared_ptr<GameOver>m_pGameOver;
 	std::shared_ptr<MainUI>m_pMainUI;
+	std::shared_ptr<BackGround>m_pBackGround;
+	std::shared_ptr<Particle>m_pParticle[kParticleMaxNum];
 };

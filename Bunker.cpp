@@ -5,7 +5,7 @@ namespace
 {
 	// ‰ŠúˆÊ’u
 	constexpr float kInitPosX = 0.0f;
-	constexpr float kInitPosY = 10.0f;
+	constexpr float kInitPosZ = 10.0f;
 
 
 	// Å‘åHP—Ê
@@ -42,7 +42,7 @@ void Bunker::init(int savePosX, int savePosY)
 	m_savePosY = savePosY;
 
 	// ˆÊ’u‚Ì‰Šú‰»
-	m_pos = VGet(kInitPosX + m_savePosX, kInitPosY + savePosY, 0.0f);
+	m_pos = VGet(kInitPosX + m_savePosX, kInitPosZ + savePosY, 0.0f);
 
 	// Å‘åHP—Ê‚ğ‘ã“ü
 	m_hp = kMaxHp;

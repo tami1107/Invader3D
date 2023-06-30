@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BackGround.cpp" />
     <ClCompile Include="Bunker.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Enemy.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainUI.cpp" />
     <ClCompile Include="Pad.cpp" />
+    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SceneBase.cpp" />
     <ClCompile Include="SceneMain.cpp" />
@@ -156,6 +158,7 @@
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BackGround.h" />
     <ClInclude Include="Bunker.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Enemy.h" />
@@ -164,6 +167,7 @@
     <ClInclude Include="InvertShot.h" />
     <ClInclude Include="MainUI.h" />
     <ClInclude Include="Pad.h" />
+    <ClInclude Include="Particle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="SceneBase.h" />
     <ClInclude Include="SceneMain.h" />

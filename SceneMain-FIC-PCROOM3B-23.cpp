@@ -16,13 +16,10 @@
 namespace
 {
 	// エネミーグラフィックの挿入
-	const char* const kEnemyGraphicFileName = "data/enemy.png";
+	const char* const kEnemyGraphic = "data/enemy.png";
 
 	// ショットグラフィック
-	const char* const kShotGraphicFileName = "data/shot.png";
-
-	// パーティクルのグラフィックファイル名
-	const char* const kParticleGraphicFileName = "data/particle.png";
+	const char* const kShotGraphic = "data/shot.png";
 }
 
 
@@ -37,7 +34,6 @@ SceneMain::SceneMain():
 	m_enemyLevel(0),
 	m_playerRemaining(0),
 	m_shotGraphic(-1),
-	m_particleGraphic(-1),
 	m_pPlayer(std::make_shared<Player>()),
 	m_pCamera(std::make_shared<Camera>()),
 	m_pGameOver(std::make_shared<GameOver>()),
@@ -70,11 +66,16 @@ SceneMain::SceneMain():
 		particle = std::make_shared<Particle>();
 	}
 
+
+
 	// グラフィックハンドルの初期化
 	for (auto& handle : m_enemyGraphic)
 	{
 		handle = -1;
 	}
+
+
+
 }
 
 SceneMain::~SceneMain()
@@ -85,7 +86,6 @@ SceneMain::~SceneMain()
 		DeleteGraph(handle);
 	}
 	DeleteGraph(m_shotGraphic);
-	DeleteGraph(m_particleGraphic);
 }
 
 void SceneMain::init()
@@ -116,11 +116,11 @@ void SceneMain::init()
 	// エネミーのグラフィックサイズを取得
 	int EnemyW = {};
 	int EnemyH = {};
-	int EnemyG = LoadGraph(kEnemyGraphicFileName);
+	int EnemyG = LoadGraph(kEnemyGraphic);
 	GetGraphSize(EnemyG, &EnemyW, &EnemyH);
 
 	// エネミーの画像を分割して挿入
-	LoadDivGraph(kEnemyGraphicFileName, Enemy::kEnemyGraphicDivNum,
+	LoadDivGraph(kEnemyGraphic, Enemy::kEnemyGraphicDivNum,
 		Enemy::kEnemyGraphicDivX, Enemy::kEnemyGraphicDivY,
 		EnemyW / Enemy::kEnemyGraphicDivX, EnemyH / Enemy::kEnemyGraphicDivY, m_enemyGraphic);
 
@@ -133,25 +133,15 @@ void SceneMain::init()
 		}
 	}
 
-
+	
 	// グラフィックの挿入
-	m_shotGraphic = LoadGraph(kShotGraphicFileName);
+	m_shotGraphic = LoadGraph(kShotGraphic);
 
 	// ショットにグラフィックを送る
 	for (int i = 0; i < kPlayerShotMaxNumber; i++)
 	{
 		m_pShot[i]->getShotGraphic(m_shotGraphic);
 	}
-
-
-	// グラフィックの挿入
-	m_particleGraphic = LoadGraph(kParticleGraphicFileName);
-	// パーティクルにグラフィックを送る
-	for (auto& particle : m_pParticle)
-	{
-		particle->setHandle(m_particleGraphic);
-	}
-
 
 
 
