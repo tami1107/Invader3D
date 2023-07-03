@@ -10,8 +10,8 @@ namespace
 	// ショット開始位置
 	constexpr float kShotBegin = 0.0f;
 
-	// ショットのサイズ
-	constexpr float kShotSize = 1.0f;
+	// ショットモデルのスケール
+	constexpr float kModeleScale = 1.5f;
 
 	// ショットを消す位置
 	constexpr float kShotDedetePosZ = 0.0f;
@@ -20,12 +20,15 @@ namespace
 
 InvertShot::InvertShot() :
 	m_isExist(false),
+	m_modeleHandle(-1),
 	m_pos()
 {
 }
 
 InvertShot::~InvertShot()
 {
+	// グラフィックの削除
+	DeleteGraph(m_modeleHandle);
 }
 
 void InvertShot::start(VECTOR pos)
@@ -38,6 +41,12 @@ void InvertShot::start(VECTOR pos)
 
 	// ショットを撃ち始めの位置を変更する
 	m_pos.z += kShotBegin;
+}
+
+void InvertShot::init()
+{
+	// ３Ｄモデルのスケール変更
+	MV1SetScale(m_modeleHandle, VGet(kModeleScale, kModeleScale, kModeleScale));
 }
 
 void InvertShot::update()
@@ -60,14 +69,22 @@ void InvertShot::draw()
 	// 弾が存在しなかった場合、ここで処理を終了する
 	if (!m_isExist) return;
 
+	// ショットの描画
+	MV1DrawModel(m_modeleHandle);
+
+#if false
 	// 弾の表示
-	DrawSphere3D(m_pos, kShotSize, 32, GetColor(0, 255, 0), GetColor(0, 0, 0), true);
+	DrawSphere3D(m_pos, kModeleScale, 32, GetColor(0, 255, 0), GetColor(0, 0, 0), true);
+#endif
 }
 
 void InvertShot::BulletTrajectory()
 {
 	// 弾が手前方向に飛んでいく
 	m_pos.z -= kShotSpeed;
+
+	// 位置情報をモデルに入れる
+	MV1SetPosition(m_modeleHandle, m_pos);
 }
 
 void InvertShot::Collision2D()
@@ -80,7 +97,7 @@ void InvertShot::Collision2D()
 
 		float dr = dx * dx + dy * dy;// A²＝B²＋C²
 
-		float ar = kShotSize + Player::kCircleSize;// 当たり判定の大きさ
+		float ar = kModeleScale + Player::kCircleSize;// 当たり判定の大きさ
 		float dl = ar * ar;
 
 		// プレイヤーのショットにエネミーが当たったとき(X,Y)

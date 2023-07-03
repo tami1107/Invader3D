@@ -44,15 +44,13 @@ void Camera::update()
 	// プレイヤーの位置を入れる
 	VECTOR playerPos = m_pPlayer->getPos();
 
-
-
 	// カメラの回転を変更する
 	if (Pad::isTrigger(PAD_INPUT_2))
 	{
 		m_cameraNum++;
 
 		// 0と1しか使わない
-		if (m_cameraNum == 2)
+		if (m_cameraNum == 4)
 		{
 			m_cameraNum = 0;
 		}
@@ -71,21 +69,29 @@ void Camera::update()
 	}
 	else if (m_cameraNum == 1)
 	{
+		m_cameraRot = 0.2f;
+
+		// カメラの回転位置
+		cameraPos = VGet(playerPos.x, playerPos.y+10, playerPos.z-20);
+	}
+	else if (m_cameraNum == 2)
+	{
 		m_cameraRot = 0.0f;
 
 		// カメラの回転位置
-		cameraPos = VGet(playerPos.x, playerPos.y+10, playerPos.z-10);
+		cameraPos = VGet(playerPos.x, playerPos.y+5, playerPos.z);
 	}
+	else if (m_cameraNum == 3)
+	{
+		m_cameraRot = 1.0f;
 
-
+		// カメラの回転位置
+		cameraPos = VGet(0.0f,  100.0f, -10.0f);
+	}
 
 
 	// カメラの回転角度
 	SetCameraPositionAndAngle(cameraPos, m_cameraRot, 0.0f, 0.0f);
-
-
-
-
 
 
 

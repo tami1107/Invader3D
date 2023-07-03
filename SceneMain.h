@@ -144,7 +144,7 @@ private:
 	int m_score;
 
 	// エネミーのグラフィック
-	int m_enemyGraphic[Enemy::kEnemyGraphicDivNum];
+	int m_enemyGraphic[Enemy::kEnemyGraphicNum];
 
 	// ショットのグラフィック
 	int m_shotGraphic;

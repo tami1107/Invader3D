@@ -16,6 +16,9 @@ public:
 	// 発射
 	void start(VECTOR pos);
 
+	// 初期化処理
+	void init();
+
 	// 更新
 	void update();
 	// 表示
@@ -27,6 +30,10 @@ public:
 
 	// 情報の取得
 	VECTOR getPos() const { return m_pos; }
+
+public:
+	// グラフィックを受け取る
+	void getShotGraphic(int handle) { m_modeleHandle = handle; }
 
 public:
 
@@ -44,9 +51,11 @@ private:
 	// 存在フラグ
 	bool m_isExist;
 
+	// 3Dモデルハンドル
+	int m_modeleHandle;
+
 	// 表示位置
 	VECTOR m_pos;
-
 
 	// クラスポインタ
 	std::shared_ptr<Player>m_pPlayer;

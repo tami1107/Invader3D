@@ -16,14 +16,22 @@
 namespace
 {
 	// エネミーグラフィックの挿入
-	const char* const kEnemyGraphicFileName = "data/enemy.png";
+	const char* const kEnemyGraphic1FileName = "data/enemy1.png";
+	// エネミーグラフィックの挿入
+	const char* const kEnemyGraphic2FileName = "data/enemy2.png";
+
 
 	// ショットグラフィック
-	const char* const kShotGraphicFileName = "data/shot.png";
+	const char* const kShotGraphicFileName = "data/modele/cube.mv1";
+
+	// エネミーショットグラフィック
+	const char* const kEnemyShotGraphicFileName = "data/modele/cube.mv1";
 
 	// パーティクルのグラフィックファイル名
 	const char* const kParticleGraphicFileName = "data/particle.png";
 }
+
+
 
 
 SceneMain::SceneMain():
@@ -111,21 +119,12 @@ void SceneMain::init()
 		bunker->getSceneMainPointer(this);
 	}
 
-
-
-	// エネミーのグラフィックサイズを取得
-	int EnemyW = {};
-	int EnemyH = {};
-	int EnemyG = LoadGraph(kEnemyGraphicFileName);
-	GetGraphSize(EnemyG, &EnemyW, &EnemyH);
-
-	// エネミーの画像を分割して挿入
-	LoadDivGraph(kEnemyGraphicFileName, Enemy::kEnemyGraphicDivNum,
-		Enemy::kEnemyGraphicDivX, Enemy::kEnemyGraphicDivY,
-		EnemyW / Enemy::kEnemyGraphicDivX, EnemyH / Enemy::kEnemyGraphicDivY, m_enemyGraphic);
+	// エネミーのグラフィックをロード
+	m_enemyGraphic[0] = LoadGraph(kEnemyGraphic1FileName);
+	m_enemyGraphic[1] = LoadGraph(kEnemyGraphic2FileName);
 
 	// 分割したグラフィックを送る
-	for (int i = 0; i < Enemy::kEnemyGraphicDivNum; i++)
+	for (int i = 0; i < Enemy::kEnemyGraphicNum; i++)
 	{
 		for (auto& enemy : m_pEnemy)
 		{
@@ -134,14 +133,27 @@ void SceneMain::init()
 	}
 
 
-	// グラフィックの挿入
-	m_shotGraphic = LoadGraph(kShotGraphicFileName);
+
+	// ショットのモデルを読み込む
+	m_shotGraphic = MV1LoadModel(kShotGraphicFileName);
 
 	// ショットにグラフィックを送る
 	for (int i = 0; i < kPlayerShotMaxNumber; i++)
 	{
 		m_pShot[i]->getShotGraphic(m_shotGraphic);
 	}
+
+
+	// エネミーショットのモデルを読み込む
+	m_shotGraphic = MV1LoadModel(kEnemyShotGraphicFileName);
+
+	// ショットにグラフィックを送る
+	for (int i = 0; i < kEnemyShotMaxNumber; i++)
+	{
+		m_pInvertShot[i]->getShotGraphic(m_shotGraphic);
+	}
+
+
 
 
 	// グラフィックの挿入
@@ -161,6 +173,12 @@ void SceneMain::init()
 	m_pGameOver->init();
 	m_pMainUI->init();
 	m_pBackGround->init();
+
+	// ショットにグラフィックを送る
+	for (int i = 0; i < kPlayerShotMaxNumber; i++)
+	{
+		m_pShot[i]->init();
+	}
 
 
 	// エネミーの生成
@@ -417,7 +435,7 @@ void SceneMain::CreateBunker()
 	for (int i = 0; i < kBunkerMaxNum; i++)
 	{
 		// 位置をずらす
-		float slidePosX = 10.0f;
+		float slidePosX = 15.0f;
 		float slidePosY = 0.0f;
 
 
@@ -587,8 +605,7 @@ void SceneMain::EnemyToShotCollision()
 							shot->setExist(false);
 
 							// プレイヤーのショットに当たったモブエネミーを消す
-							enemy->getIsHit(true);
-							//enemy->setExist(false);
+							enemy->setExist(false);
 
 							// パーティクル処理を呼び出す
 							createParticle(enemy->getPos(),0);

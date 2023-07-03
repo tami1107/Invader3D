@@ -40,9 +40,6 @@ private:
 	// 存在フラグ
 	bool m_isExist;
 
-	// 保存位置
-	int m_savePosX;
-	int m_savePosY;
 
 	// ヒットポイント
 	int m_hp;

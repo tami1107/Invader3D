@@ -7,9 +7,6 @@ public:
 	Particle();
 	virtual ~Particle();
 
-	void init();
-	void end();
-
 	void update();
 	void draw();
 
@@ -22,6 +19,19 @@ public:
 
 	// グラフィックデータ設定
 	void setHandle(int handle) {m_handle= handle; }
+
+public:
+	// ポリゴン初期設定
+	void InitPolygon();
+
+	// ポリゴンのアップデート
+	void UpdatePolygon();
+
+	// 移動処理
+	void Move();
+
+	// 移動制限
+	void MoveLimit();
 
 private:
 	// 表示位置
@@ -37,4 +47,10 @@ private:
 
 	// 存在するか
 	bool m_isExist;
+
+	// 立体表示
+	VERTEX3D Vertex[6];
+
+	// 回転
+	VECTOR Angle;
 };

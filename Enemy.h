@@ -8,10 +8,21 @@ public:
 	// 半球サイズ
 	static constexpr float kCircleSize = 5.0f;
 
-	// エネミーグラフィック分割数
-	static constexpr int kEnemyGraphicDivX = 3;
-	static constexpr int kEnemyGraphicDivY = 1;
-	static constexpr int kEnemyGraphicDivNum = kEnemyGraphicDivX * kEnemyGraphicDivY;
+	// エネミーグラフィック数
+	static constexpr int kEnemyGraphicNum = 2;
+
+	// 初期座標
+	static constexpr float kInitPosZ = 100.0f;
+
+	// 移動量X
+	static constexpr float kMovePosX = 5.0f;
+
+	// 移動量Z
+	static constexpr float kMovePosZ = 10.0f;
+
+	// どこまで移動するのか (kMovePosX * kLimitMove)
+	static constexpr int kLimitMove = 6;
+
 public:
 	Enemy();
 	virtual ~Enemy();
@@ -29,8 +40,6 @@ public:
 	// 位置情報を返す
 	VECTOR getPos() const { return m_pos; }
 
-	// 当たり判定を取得
-	void getIsHit(bool isHit) { m_isHit = isHit; }
 
 	// 移動までにかかる時間を減らす数値を取得
 	void getDecrementTime(int decrementTime) { m_decrementTime = decrementTime; }
@@ -49,16 +58,17 @@ public:
 
 
 public:
+	// ポリゴン初期設定
+	void InitPolygon();
+
+	// ポリゴンのアップデート
+	void UpdatePolygon();
 
 	// 移動処理
 	void Move();
 
 	// ショット処理
 	void Shot();
-
-	// ダメージを受けたときのアニメーション
-	void DamageAnimation();
-
 
 private:
 	
@@ -81,9 +91,6 @@ private:
 	bool m_isUnderMove;
 
 
-	// 当たったかどうか
-	bool m_isHit;
-
 	// ショットの発生間隔
 	int m_shotInterval;
 
@@ -91,13 +98,10 @@ private:
 	int m_decrementTime;
 
 	// エネミーのグラフィック
-	int m_handle[kEnemyGraphicDivNum];
+	int m_handle[kEnemyGraphicNum];
 
 	// アニメーションナンバー
 	int m_animationNum;
-
-	// ダメージアニメーションフレーム
-	int m_damageAnimationFrame;
 
 
 	// 表示位置
@@ -105,5 +109,11 @@ private:
 
 	// クラスポインタ
 	SceneMain* m_pSceneMain;
+
+	// 立体表示
+	VERTEX3D Vertex[6];
+
+	// 回転
+	VECTOR Angle;
 };
 

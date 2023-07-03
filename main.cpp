@@ -26,6 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetWriteZBufferFlag(TRUE);		// Ｚバッファへの書き込みを行う
 	SetUseBackCulling(TRUE);		// バックカリングを行う
 
+	
 
 	// 最初のシーンの初期化
 	SceneManager scene;

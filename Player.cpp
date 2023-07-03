@@ -4,6 +4,10 @@
 
 namespace
 {
+	// 初期位置
+	constexpr float kInitPosY = 1.0f;
+
+
 	// 移動スピード
 	constexpr float kMoveSpeed = 0.5f;
 
@@ -34,7 +38,7 @@ Player::~Player()
 void Player::init()
 {
 	// 位置の初期化
-	m_pos = VGet(0.0f, 0.0f, 0.0f);
+	m_pos = VGet(0.0f, kInitPosY, 0.0f);
 
 	// 方向の初期化
 	m_dir = VGet(0.0f, 0.0f, 0.0f);
@@ -181,5 +185,5 @@ void Player::CollisionProcess()
 void Player::ResetPos()
 {
 	// 位置の初期化
-	m_pos = VGet(0.0f, 0.0f, 0.0f);
+	m_pos = VGet(0.0f, kInitPosY, 0.0f);
 }
