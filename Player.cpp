@@ -4,9 +4,14 @@
 
 namespace
 {
-	// 初期位置
-	constexpr float kInitPosY = 1.0f;
+	// プレイヤーのグラフィックファイル名
+	const char* const kPlayerGraphicFileName = "data/modele/player.mv1";
 
+	// モデルのスケール
+	constexpr float kModeleScale = 2.5f;
+
+	// 初期位置
+	constexpr float kInitPosY = 3.0f;
 
 	// 移動スピード
 	constexpr float kMoveSpeed = 0.5f;
@@ -16,10 +21,12 @@ namespace
 
 	// プレイヤーの移動範囲
 	constexpr int kMoveLimit = 50;
+
 }
 
 
 Player::Player():
+	m_modeleHandle(-1),
 	m_isHit(false),
 	m_shotInterval(0),
 	m_pos(),
@@ -33,10 +40,19 @@ Player::~Player()
 	// ポインタの削除
 	m_pSceneMain = nullptr;
 	delete m_pSceneMain;
+
+	// グラフィックの削除
+	DeleteGraph(m_modeleHandle);
 }
 
 void Player::init()
 {
+	// モデルを読み込む
+	m_modeleHandle = MV1LoadModel(kPlayerGraphicFileName);
+
+	// ３Ｄモデルのスケール変更
+	MV1SetScale(m_modeleHandle, VGet(kModeleScale, kModeleScale, kModeleScale));
+
 	// 位置の初期化
 	m_pos = VGet(0.0f, kInitPosY, 0.0f);
 
@@ -74,9 +90,17 @@ void Player::draw()
 		color = 0xff0000;
 	}
 
-	DrawSphere3D(m_pos, 2, 32, color, GetColor(0, 0, 0), true);
 
-	DrawFormatString(0, 1 * 15, 0xffffff, "pos.x:%f pos.y:%f", m_pos.x, m_pos.y);
+	// モデルの描画
+	MV1DrawModel(m_modeleHandle);
+
+
+	DrawFormatString(0, 1 * 15, 0xffffff, "pos.x:%f pos.y:%f pos.z:%f", m_pos.x, m_pos.y, m_pos.z);
+
+	// 当たり判定の表示
+#if true
+	DrawSphere3D(m_pos, kCircleSize, 32, color, GetColor(0, 0, 0), true);
+#endif
 }
 
 void Player::Move()
@@ -133,7 +157,8 @@ void Player::Move()
 	// ベクトルの足し算
 	m_pos = VAdd(m_pos, velocity);
 
-
+	// 位置情報をモデルに入れる
+	MV1SetPosition(m_modeleHandle, m_pos);
 }
 
 void Player::LimitMove()

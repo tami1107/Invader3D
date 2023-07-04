@@ -140,7 +140,7 @@ void Enemy::draw()
 
 	
 	// “–‚½‚è”»’è‚Ì•\Ž¦
-#if true
+#if false
 	// ‹…‚Ì•\Ž¦
 	DrawSphere3D(m_pos, kCircleSize, 32, 0xffffff, GetColor(0, 0, 0), true);
 #endif

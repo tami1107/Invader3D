@@ -6,7 +6,7 @@ class Player
 {
 public:
 	// 半球サイズ
-	static constexpr float kCircleSize = 2.0f;
+	static constexpr float kCircleSize = 3.0f;
 
 	
 public:
@@ -44,6 +44,9 @@ public:
 	void ResetPos();
 
 private:
+
+	// 3Dモデルハンドル
+	int m_modeleHandle;
 
 	// 当たったかどうか
 	bool m_isHit;

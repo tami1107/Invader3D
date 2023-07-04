@@ -29,6 +29,10 @@ public:
 	bool isExist() const { return m_isExist; }
 	void setExist(bool isExist) { m_isExist = isExist; }
 
+
+public:
+	// グラフィックを受け取る
+	void getGraphic(int handle) { m_modeleHandle = handle; }
 public:
 	// ダメージ処理
 	void DamegeProcess(int damages);
@@ -37,6 +41,11 @@ public:
 	void Collision2D();
 
 private:
+
+	// 3Dモデルハンドル
+	int m_modeleHandle;
+
+
 	// 存在フラグ
 	bool m_isExist;
 

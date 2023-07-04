@@ -149,8 +149,16 @@ private:
 	// ショットのグラフィック
 	int m_shotGraphic;
 
+	// エネミーショットのグラフィック
+	int m_invertShotGraphic[kEnemyShotMaxNumber];
+
+
 	// Particleのグラフィック
 	int m_particleGraphic;
+
+	// トーチカのグラフィック
+	int m_bunkerGraphic[kBunkerMaxNum];
+
 
 	// クラスポインタ
 	std::shared_ptr<Player>m_pPlayer;

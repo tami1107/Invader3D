@@ -15,6 +15,9 @@ namespace
 
 	// ショットを消す位置
 	constexpr float kShotDedetePosZ = 0.0f;
+
+	// 半球サイズ
+	constexpr float kCircleSize = 1.0f;
 }
 
 
@@ -28,7 +31,7 @@ InvertShot::InvertShot() :
 InvertShot::~InvertShot()
 {
 	// グラフィックの削除
-	DeleteGraph(m_modeleHandle);
+	MV1DeleteModel(m_modeleHandle);
 }
 
 void InvertShot::start(VECTOR pos)
@@ -72,9 +75,9 @@ void InvertShot::draw()
 	// ショットの描画
 	MV1DrawModel(m_modeleHandle);
 
+	// 当たり判定
 #if false
-	// 弾の表示
-	DrawSphere3D(m_pos, kModeleScale, 32, GetColor(0, 255, 0), GetColor(0, 0, 0), true);
+	DrawSphere3D(m_pos, kCircleSize, 32, GetColor(0, 255, 0), GetColor(0, 0, 0), true);
 #endif
 }
 

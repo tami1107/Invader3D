@@ -20,7 +20,6 @@ namespace
 	// エネミーグラフィックの挿入
 	const char* const kEnemyGraphic2FileName = "data/enemy2.png";
 
-
 	// ショットグラフィック
 	const char* const kShotGraphicFileName = "data/modele/cube.mv1";
 
@@ -29,6 +28,9 @@ namespace
 
 	// パーティクルのグラフィックファイル名
 	const char* const kParticleGraphicFileName = "data/particle.png";
+
+	// トーチカのグラフィックファイル名
+	const char* const kBunkerGraphicFileName = "data/modele/bunker.mv1";
 }
 
 
@@ -83,6 +85,17 @@ SceneMain::SceneMain():
 	{
 		handle = -1;
 	}
+
+	for (auto& invertShot : m_invertShotGraphic)
+	{
+		invertShot = -1;
+	}
+
+	for (auto& bunker : m_bunkerGraphic)
+	{
+		bunker = -1;
+	}
+
 }
 
 SceneMain::~SceneMain()
@@ -92,8 +105,19 @@ SceneMain::~SceneMain()
 	{
 		DeleteGraph(handle);
 	}
-	DeleteGraph(m_shotGraphic);
+	for (auto& invertShot : m_invertShotGraphic)
+	{
+		MV1DeleteModel(invertShot);
+	}
+	for (auto& bunker : m_bunkerGraphic)
+	{
+		MV1DeleteModel(bunker);
+	}
+
+
 	DeleteGraph(m_particleGraphic);
+	MV1DeleteModel(m_shotGraphic);
+
 }
 
 void SceneMain::init()
@@ -145,15 +169,19 @@ void SceneMain::init()
 
 
 	// エネミーショットのモデルを読み込む
-	m_shotGraphic = MV1LoadModel(kEnemyShotGraphicFileName);
+	int invertShotGraphic = MV1LoadModel(kEnemyShotGraphicFileName);
+
+
 
 	// ショットにグラフィックを送る
 	for (int i = 0; i < kEnemyShotMaxNumber; i++)
 	{
-		m_pInvertShot[i]->getShotGraphic(m_shotGraphic);
+		// モデルを配列にコピーする
+		m_invertShotGraphic[i] = MV1DuplicateModel(invertShotGraphic);
+
+		// ショットにグラフィックを送る
+		m_pInvertShot[i]->getShotGraphic(m_invertShotGraphic[i]);
 	}
-
-
 
 
 	// グラフィックの挿入
@@ -164,6 +192,17 @@ void SceneMain::init()
 		particle->setHandle(m_particleGraphic);
 	}
 
+	// トーチカのグラフィック挿入
+	int bunkerGraphic= MV1LoadModel(kBunkerGraphicFileName);
+
+	// トーチカグラフィックを送る
+	for (int i = 0; i < kBunkerMaxNum; i++)
+	{
+		// モデルを配列にコピーする
+		m_bunkerGraphic[i] = MV1DuplicateModel(bunkerGraphic);
+
+		m_pBunker[i]->getGraphic(m_bunkerGraphic[i]);
+	}
 
 
 
@@ -179,6 +218,12 @@ void SceneMain::init()
 	{
 		m_pShot[i]->init();
 	}
+	// エネミーショットにグラフィックを送る
+	for (int i = 0; i < kEnemyShotMaxNumber; i++)
+	{
+		m_pInvertShot[i]->init();
+	}
+
 
 
 	// エネミーの生成
@@ -597,7 +642,7 @@ void SceneMain::EnemyToShotCollision()
 						dl = ar * ar;
 
 
-						// プレイヤーのショットにエネミーが当たっていないとき処理を終わらせる(Z,Y)
+						// プレイヤーのショットにエネミーが当たったとき処理を終わらせる(Z,Y)
 						if (dr < dl)
 						{
 
@@ -623,7 +668,9 @@ void SceneMain::EnemyToShotCollision()
 	}
 }
 
-// FIXME
+/// <summary>
+/// トーチカとショットの当たり判定
+/// </summary>
 void SceneMain::BunkerToShotCollision()
 {
 	// トーチカを見る
@@ -643,17 +690,28 @@ void SceneMain::BunkerToShotCollision()
 					float dy = shot->getPos().y - bunker->getPos().y;
 					float dr = dx * dx + dy * dy;// A²＝B²＋C²
 
-					float ar = Shot::kShotSize + Enemy::kCircleSize;// 当たり判定の大きさ
+					float ar = Shot::kShotSize + Bunker::kCircleSize;// 当たり判定の大きさ
 					float dl = ar * ar;
 
-					// プレイヤーのショットにトーチカが当たったとき
+					// プレイヤーのショットにトーチカが当たったとき(X,Y)
 					if (dr < dl)
 					{
-						// トーチカ当たったプレイヤーの弾を消す
-						shot->setExist(false);
+						// 円形の当たり判定(Z,Y)
+						dx = shot->getPos().z - bunker->getPos().z;
+						dr = dx * dx + dy * dy;// A²＝B²＋C²
 
-						// プレイヤーのショットに当たったトーチカにダメージを与える
-						bunker->DamegeProcess(1);
+						dl = ar * ar;
+						
+						// プレイヤーのショットにトーチカが当たったとき(Z,Y)
+						if (dr < dl)
+						{
+
+							// トーチカ当たったプレイヤーの弾を消す
+							shot->setExist(false);
+
+							// プレイヤーのショットに当たったトーチカにダメージを与える
+							bunker->DamegeProcess(1);
+						}
 					}
 				}
 			}
@@ -661,7 +719,9 @@ void SceneMain::BunkerToShotCollision()
 	}
 }
 
-// FIXME
+/// <summary>
+/// トーチカとエネミーショットの判定
+/// </summary>
 void SceneMain::BunkerToInvertShotCollision()
 {
 	// トーチカを見る
@@ -681,17 +741,29 @@ void SceneMain::BunkerToInvertShotCollision()
 					float dy = invertShot->getPos().y - bunker->getPos().y;
 					float dr = dx * dx + dy * dy;// A²＝B²＋C²
 
-					float ar = Shot::kShotSize + Enemy::kCircleSize;// 当たり判定の大きさ
+					float ar = Shot::kShotSize + Bunker::kCircleSize;// 当たり判定の大きさ
 					float dl = ar * ar;
 
-					// エネミーのショットにトーチカが当たったとき
+					// エネミーのショットにトーチカが当たったとき(X,Y)
 					if (dr < dl)
 					{
-						// トーチカに当たったエネミーの弾を消す
-						invertShot->setExist(false);
+						// 円形の当たり判定(Z,Y)
+						dx = invertShot->getPos().z - bunker->getPos().z;
+						dr = dx * dx + dy * dy;// A²＝B²＋C²
 
-						// エネミーのショットに当たったトーチカにダメージを与える
-						bunker->DamegeProcess(1);
+						dl = ar * ar;
+
+						// エネミーのショットにトーチカが当たったとき(Z,Y)
+						if (dr < dl)
+						{
+
+							// トーチカに当たったエネミーの弾を消す
+							invertShot->setExist(false);
+
+							// エネミーのショットに当たったトーチカにダメージを与える
+							bunker->DamegeProcess(1);
+
+						}
 					}
 				}
 			}

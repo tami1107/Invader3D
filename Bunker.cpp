@@ -11,10 +11,14 @@ namespace
 
 	// 最大HP量
 	constexpr int kMaxHp = 5;
+
+	// モデルのスケール
+	constexpr float kModeleScale = 5.5f;
 }
 
 Bunker::Bunker():
 	m_isExist(true),
+	m_modeleHandle(-1),
 	m_hp(0),
 	m_alphaValue(0),
 	m_alphaValueDecrement(0),
@@ -28,6 +32,9 @@ Bunker::~Bunker()
 	// ポインタの削除
 	m_pSceneMain = nullptr;
 	delete m_pSceneMain;
+
+	// グラフィックの削除
+	MV1DeleteModel(m_modeleHandle);
 }
 
 void Bunker::init(int savePosX, int savePosY)
@@ -47,6 +54,12 @@ void Bunker::init(int savePosX, int savePosY)
 
 	// アルファブレンドの減少値を代入
 	m_alphaValueDecrement = m_alphaValue / kMaxHp;
+
+	// ３Ｄモデルのスケール変更
+	MV1SetScale(m_modeleHandle, VGet(kModeleScale, kModeleScale, kModeleScale));
+
+	// 位置情報をモデルに入れる
+	MV1SetPosition(m_modeleHandle, m_pos);
 }
 
 void Bunker::update()
@@ -61,12 +74,18 @@ void Bunker::draw()
 {
 	if (!m_isExist)return;
 
+	// モデルの描画
+	MV1DrawModel(m_modeleHandle);
+
+#if true
 	// ダメージを受けるたびに薄くする
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, m_alphaValue);
 	// 球の表示
 	DrawSphere3D(m_pos, kCircleSize, 32, 0x0000ff, GetColor(0, 0, 0), true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+#endif
+
 }
 
 void Bunker::DamegeProcess(int damages)
