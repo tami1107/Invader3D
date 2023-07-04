@@ -31,6 +31,19 @@ namespace
 
 	// トーチカのグラフィックファイル名
 	const char* const kBunkerGraphicFileName = "data/modele/bunker.mv1";
+
+	// エネミーの移動レベル1（何割以下で速度を上げるのか）
+	constexpr float kEnemyMoveLevel1 = 0.5;
+
+	// エネミーの移動レベル2（何割以下で速度を上げるのか）
+	constexpr float kEnemyMoveLevel2 = 0.2;
+
+	// エネミーの移動インターバル減少値レベル1
+	constexpr int kEnemyMoveInterval1 = 10;
+
+	// エネミーの移動インターバル減少値レベル2
+	constexpr int kEnemyMoveInterva2 = 30;
+
 }
 
 
@@ -259,30 +272,6 @@ SceneBase* SceneMain::update()
 	}
 
 
-
-	for (auto& enemy : m_pEnemy)
-	{
-		// 存在するエネミーを数える
-		if (enemy->isExist())
-		{
-			m_enemyCount++;
-		}
-	}
-
-	if (m_enemyCount == 0)
-	{
-		// エネミーのレベルを上げる
-		m_enemyLevel++;
-
-		// エネミーのレベル値を送る
-		m_pMainUI->getEnemyLv(m_enemyLevel);
-
-		CreateEnemy();
-	}
-
-	m_enemyCount = 0;
-
-
 	// クラスのアップデート処理
 	m_pPlayer->update();
 	m_pCamera->update();
@@ -312,12 +301,29 @@ SceneBase* SceneMain::update()
 	}
 
 
-
-
 	if (Pad::isTrigger(PAD_INPUT_1))
 	{
 		return (new SceneTitle);
 	}
+
+
+	// エネミーをすべて消す
+#if true
+
+	DrawString(0, 15*8, "Dキーでエネミー全削除", GetColor(255, 255, 255));
+
+	if (Pad::isTrigger(PAD_INPUT_6))
+	{
+		for (auto& enemy : m_pEnemy)
+		{
+			enemy->setExist(false);
+			EnemyExistProcess();
+		}
+	}
+
+#endif
+
+
 
 	return this;
 }
@@ -360,16 +366,15 @@ void SceneMain::draw()
 	}
 
 
-//	DrawFormatString(0, 2 * 15, 0xffffff, "Maim m_enemyLevel:%d", m_enemyLevel);
-//	DrawFormatString(0, 3 * 15, 0xffffff, "Maim m_playerRemaining:%d", m_playerRemaining);
-//	DrawFormatString(0, 4 * 15, 0xffffff, "Maim m_score : %d", m_score);
-
 	DrawString(0, 0, "メイン画面", GetColor(255, 255, 255));
+
+	// エネミーの数を表示
+	DrawFormatString(0, 6 * 15, 0xffffff, "Maim enemyCount : %d", m_enemyCount);
 }
 
 void SceneMain::RsetProcess()
 {
-	// エネミーのレベルを0に戻す
+	// エネミーのレベルを1に戻す
 	m_enemyLevel = 0;
 
 	// プレイヤーの残機を最初の値に戻す
@@ -408,20 +413,21 @@ void SceneMain::CreateEnemy()
 	// 何列で次の行に移るのか
 	int nextLine = kEnemyMaxNum / kEnemyMaxLine;
 
-	// 現在の移動インターバルの減少値
-	int nowDecrementFrame = m_enemyLevel * kdecrementFrame;
-
 
 	// 変数の初期化
 	m_enemyLineCount = 0;
 	m_enemySlideCount = 0;
 	m_enemyLine = 0;
 
+	// レベルの値によって初期Ｚ座標をずらす
+	float initSlaidPosZ = -(Enemy::kMovePosZ * m_enemyLevel);
+
+
 	for (int i = 0; i < kEnemyMaxNum; i++)
 	{
 		// 位置をずらす
 		float slidePosX = 20.0f;
-		float slidePosZ = -10.0f;
+		float slidePosZ = -Enemy::kMovePosZ;
 
 		// エネミーを改行する
 		if (m_enemyLineCount == nextLine)
@@ -446,7 +452,7 @@ void SceneMain::CreateEnemy()
 		{
 			slidePosX *= (m_enemyLineCount - m_enemySlideCount);
 
-			// スライドカウントを増やす
+			// スライドカウントを増やすo
 			m_enemySlideCount++;
 			// エネミーの列カウントを増やす
 			m_enemyLineCount++;
@@ -456,13 +462,13 @@ void SceneMain::CreateEnemy()
 		m_pEnemy[i]->setExist(true);
 
 		// 現在のY座標の値
-		int nowPosZ = slidePosZ * m_enemyLine;
-
-		
-
+		int nowPosZ = (slidePosZ * m_enemyLine) + initSlaidPosZ;
 
 		// 位置を送る
-		m_pEnemy[i]->init(slidePosX, nowPosZ, nowDecrementFrame);
+		m_pEnemy[i]->init(slidePosX, nowPosZ);
+
+		// 生成したエネミーの数を数える
+		m_enemyCount++;
 	}
 
 
@@ -519,7 +525,6 @@ void SceneMain::PlayerDamageProcess()
 	m_pMainUI->getPlayerHp(m_playerRemaining);
 
 
-
 	// エネミーのレベルを下げる
 	if (m_enemyLevel > 0)
 	{
@@ -533,6 +538,53 @@ void SceneMain::PlayerDamageProcess()
 		m_isGameOver = true;
 	}
 
+}
+
+/// <summary>
+/// エネミーの存在処理
+/// </summary>
+void SceneMain::EnemyExistProcess()
+{
+
+	// エネミーの移動レベル1
+	int enemyMoveLevel1 = kEnemyMaxNum * kEnemyMoveLevel1;
+
+	// エネミーの移動レベル2
+	int enemyMoveLevel2 = kEnemyMaxNum * kEnemyMoveLevel2;
+
+
+	// エネミーの数を減らす
+	m_enemyCount--;
+
+	// すべてのエネミーを見る
+	for (auto& enemy : m_pEnemy)
+	{
+
+		// エネミーの数がenemyMoveLevel1以下の時、エネミーの移動速度を上げる
+		if (m_enemyCount <= enemyMoveLevel1)
+		{
+			enemy->getDecrementTime(kEnemyMoveInterval1);
+		}
+		// エネミーの数がenemyMoveLevel2以下の時、エネミーの移動速度を上げる
+		if (m_enemyCount <= enemyMoveLevel2)
+		{
+			enemy->getDecrementTime(kEnemyMoveInterva2);
+		}
+	}
+
+
+	// エネミーの数が0以下の時、エネミーを生成する
+	if (m_enemyCount <= 0)
+	{
+		// エネミーのレベルを上げる
+		m_enemyLevel++;
+
+		// エネミーのレベル値を送る
+		m_pMainUI->getEnemyLv(m_enemyLevel);
+
+		// エネミーの生成
+		CreateEnemy();
+	}
 }
 
 /// <summary>
@@ -646,20 +698,24 @@ void SceneMain::EnemyToShotCollision()
 						if (dr < dl)
 						{
 
-							// モブエネミーに当たったプレイヤーの弾を消す
+							// エネミーに当たったプレイヤーの弾を消す
 							shot->setExist(false);
 
-							// プレイヤーのショットに当たったモブエネミーを消す
+							// プレイヤーのショットに当たったエネミーを消す
 							enemy->setExist(false);
+
+							// エネミーの存在処理
+							EnemyExistProcess();
 
 							// パーティクル処理を呼び出す
 							createParticle(enemy->getPos(),0);
-
 
 							// スコアを増やす
 							m_score += kAddedPoints;
 
 							m_pMainUI->getScore(m_score);
+
+
 						}
 					}
 				}

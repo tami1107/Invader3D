@@ -31,7 +31,7 @@ public:
 	void getSceneMainPointer(SceneMain* sceneMain) { m_pSceneMain = sceneMain; }
 
 
-	void init(int savePosX, int savePosZ, int decrementTime);
+	void init(int savePosX, int savePosZ);
 
 	void update();
 	
@@ -39,10 +39,6 @@ public:
 
 	// 位置情報を返す
 	VECTOR getPos() const { return m_pos; }
-
-
-	// 移動までにかかる時間を減らす数値を取得
-	void getDecrementTime(int decrementTime) { m_decrementTime = decrementTime; }
 
 
 	// 存在するか
@@ -55,7 +51,8 @@ public:
 	// グラフィックデータ設定
 	void setHandle(int index, int handle) { m_handle[index] = handle; }
 
-
+	// 移動までにかかる時間を減らす値を取得
+	void getDecrementTime(int decrementTime) { m_decrementTime = decrementTime; }
 
 public:
 	// ポリゴン初期設定

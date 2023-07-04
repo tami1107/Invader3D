@@ -81,6 +81,10 @@ public:
 	void PlayerDamageProcess();
 
 
+	// エネミーの存在処理
+	void EnemyExistProcess();
+
+
 	// パーティクル生成
 	void createParticle(VECTOR pos, int color);
 

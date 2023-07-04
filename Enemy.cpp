@@ -73,12 +73,9 @@ Enemy::~Enemy()
 	}
 }
 
-void Enemy::init(int savePosX, int savePosZ, int decrementTime)
+void Enemy::init(int savePosX, int savePosZ)
 {
 	
-	// スピードを代入
-	m_decrementTime = decrementTime;
-
 	// 存在している
 	m_isExist = true;
 
@@ -86,12 +83,14 @@ void Enemy::init(int savePosX, int savePosZ, int decrementTime)
 	m_savePosX = savePosX;
 	m_savePosZ = savePosZ;
 
+	// 移動インターバル減少値の初期化
+	m_decrementTime = 0;
 
 	// 位置の初期化
 	m_pos = VGet(kInitPosX + m_savePosX, kInitPosY, kInitPosZ + savePosZ);
 
 	// 移動の間隔
-	m_frameCount = kMoveInterval - m_decrementTime;
+	m_frameCount = kMoveInterval;
 
 	// 最初は右に進む
 	m_isRightMove = true;
@@ -104,8 +103,6 @@ void Enemy::init(int savePosX, int savePosZ, int decrementTime)
 
 	// アニメーションナンバーの初期化
 	m_animationNum = 0;
-
-
 
 }
 
@@ -273,7 +270,7 @@ void Enemy::Move()
 			// ゲームオーバーするかどうか
 			if (m_pos.z <= kGameOverPosY)
 			{
-				//m_pSceneMain->getIsGameOverFlag(true);
+				m_pSceneMain->getIsGameOverFlag(true);
 			}
 
 			return;
