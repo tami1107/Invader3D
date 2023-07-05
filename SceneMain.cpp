@@ -17,7 +17,6 @@ namespace
 {
 	// エネミーグラフィックの挿入
 	const char* const kEnemyGraphic1FileName = "data/enemy1.png";
-
 	// エネミーグラフィックの挿入
 	const char* const kEnemyGraphic2FileName = "data/enemy2.png";
 
@@ -33,10 +32,6 @@ namespace
 	// トーチカのグラフィックファイル名
 	const char* const kBunkerGraphicFileName = "data/modele/bunker.mv1";
 
-
-	// エネミーの横距離
-	constexpr float kEnemyWidthDistance = 20.0;
-
 	// エネミーの移動レベル1（何割以下で速度を上げるのか）
 	constexpr float kEnemyMoveLevel1 = 0.5;
 
@@ -48,15 +43,6 @@ namespace
 
 	// エネミーの移動インターバル減少値レベル2
 	constexpr int kEnemyMoveInterva2 = 30;
-
-	// エネミーに下から何列目まで進ませるか
-	constexpr int kEnemyEndCol = 2;
-
-
-	// トーチカの横距離
-	constexpr float kBunkerWidthDistance = 15.0;
-
-	// パーティクルの分散量
 
 }
 
@@ -424,7 +410,6 @@ void SceneMain::RsetProcess()
 
 void SceneMain::CreateEnemy()
 {
-
 	// 何列で次の行に移るのか
 	int nextLine = kEnemyMaxNum / kEnemyMaxLine;
 
@@ -435,27 +420,13 @@ void SceneMain::CreateEnemy()
 	m_enemyLine = 0;
 
 	// レベルの値によって初期Ｚ座標をずらす
-	float initSlaidPosZ = (Enemy::kMovePosZ * m_enemyLevel);
-
-	// 初期Ｚ座標の最大値値
-	float initMinPosZ = Enemy::kInitPosZ - ((Enemy::kMovePosZ * kEnemyEndCol) + (Enemy::kMovePosZ));
-
-	// 初期Z座標が最大値を上回ったらレベルを0に戻す
-	if (initSlaidPosZ > initMinPosZ)
-	{
-		// レベルを0にする
-		m_enemyLevel = 0;
-
-		// レベルの値によって初期Ｚ座標をずらす
-		initSlaidPosZ = (Enemy::kMovePosZ * m_enemyLevel);
-	}
-
+	float initSlaidPosZ = -(Enemy::kMovePosZ * m_enemyLevel);
 
 
 	for (int i = 0; i < kEnemyMaxNum; i++)
 	{
 		// 位置をずらす
-		float slidePosX = kEnemyWidthDistance;
+		float slidePosX = 20.0f;
 		float slidePosZ = -Enemy::kMovePosZ;
 
 		// エネミーを改行する
@@ -491,7 +462,7 @@ void SceneMain::CreateEnemy()
 		m_pEnemy[i]->setExist(true);
 
 		// 現在のY座標の値
-		int nowPosZ = (slidePosZ * m_enemyLine) + (-initSlaidPosZ);
+		int nowPosZ = (slidePosZ * m_enemyLine) + initSlaidPosZ;
 
 		// 位置を送る
 		m_pEnemy[i]->init(slidePosX, nowPosZ);
@@ -505,6 +476,8 @@ void SceneMain::CreateEnemy()
 
 void SceneMain::CreateBunker()
 {
+	
+
 	// 変数の初期化
 	m_bunkerLineCount = 0;
 	m_bunkerSlideCount = 0;
@@ -513,7 +486,9 @@ void SceneMain::CreateBunker()
 	for (int i = 0; i < kBunkerMaxNum; i++)
 	{
 		// 位置をずらす
-		float slidePosX = kBunkerWidthDistance;
+		float slidePosX = 15.0f;
+		float slidePosY = 0.0f;
+
 
 		// 奇数か偶数かで処理を分ける
 		if (m_bunkerLineCount % 2 == 0)
@@ -537,7 +512,7 @@ void SceneMain::CreateBunker()
 		m_pBunker[i]->setExist(true);
 
 		// 位置を送る
-		m_pBunker[i]->init(slidePosX);
+		m_pBunker[i]->init(slidePosX, slidePosY);
 	}
 }
 
@@ -637,7 +612,7 @@ void SceneMain::createParticle(VECTOR pos, int color)
 
 		}
 
-		//パーティクルの数が32個を超えたら処理を終える
+		//パーティクルの数が64個を超えたら処理を終える
 		if (particleCount >= 32)
 		{
 			break;

@@ -37,14 +37,14 @@ Bunker::~Bunker()
 	MV1DeleteModel(m_modeleHandle);
 }
 
-void Bunker::init(int savePosX)
+void Bunker::init(int savePosX, int savePosY)
 {
 	// ‘¶İ‚µ‚Ä‚¢‚é
 	m_isExist = true;
 
 
 	// ˆÊ’u‚Ì‰Šú‰»
-	m_pos = VGet(kInitPosX + savePosX, kInitPosY, kInitPosZ);
+	m_pos = VGet(kInitPosX + savePosX, kInitPosY + savePosY, kInitPosZ);
 
 	// Å‘åHP—Ê‚ğ‘ã“ü
 	m_hp = kMaxHp;
