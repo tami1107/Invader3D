@@ -6,6 +6,10 @@ class Player;
 class InvertShot
 {
 public:
+
+	// ショットのサイズ
+	static constexpr float kShotSize = 1.1f;
+public:
 	InvertShot();
 	virtual ~InvertShot();
 

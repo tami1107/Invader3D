@@ -17,7 +17,7 @@ namespace
 	constexpr float kShotDedetePosZ = 0.0f;
 
 	// 半球サイズ
-	constexpr float kCircleSize = 1.0f;
+	constexpr float kShotSize = InvertShot::kShotSize;
 }
 
 
@@ -100,7 +100,7 @@ void InvertShot::Collision2D()
 
 		float dr = dx * dx + dy * dy;// A²＝B²＋C²
 
-		float ar = kModeleScale + Player::kCircleSize;// 当たり判定の大きさ
+		float ar = kShotSize + Player::kCircleSize;// 当たり判定の大きさ
 		float dl = ar * ar;
 
 		// プレイヤーのショットにエネミーが当たったとき(X,Y)

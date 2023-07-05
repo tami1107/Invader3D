@@ -321,6 +321,12 @@ SceneBase* SceneMain::update()
 	}
 
 
+
+	// プレイヤーショットとエネミーショットの当たり判定
+	ShotToInvertShotCollision();
+
+
+
 	// エネミーをすべて消す
 #if true
 
@@ -822,7 +828,7 @@ void SceneMain::BunkerToInvertShotCollision()
 					float dy = invertShot->getPos().y - bunker->getPos().y;
 					float dr = dx * dx + dy * dy;// A²＝B²＋C²
 
-					float ar = Shot::kShotSize + Bunker::kCircleSize;// 当たり判定の大きさ
+					float ar = InvertShot::kShotSize + Bunker::kCircleSize;// 当たり判定の大きさ
 					float dl = ar * ar;
 
 					// エネミーのショットにトーチカが当たったとき(X,Y)
@@ -846,6 +852,63 @@ void SceneMain::BunkerToInvertShotCollision()
 
 						}
 					}
+				}
+			}
+		}
+	}
+}
+
+
+/// <summary>
+/// プレイヤーのショットとエネミーのショットの当たり判定
+/// </summary>
+void SceneMain::ShotToInvertShotCollision()
+{
+
+	// すべてのプレイヤーの弾をみる
+	for (auto& shot : m_pShot)
+	{
+		// プレイヤーのショットが存在するとき
+		if (shot->isExist())
+		{
+
+			// すべてのエネミーの弾をみる
+			for (auto& invertShot : m_pInvertShot)
+			{
+				// エネミーのショットが存在するとき
+				if (invertShot->isExist())
+				{
+					// 円形の当たり判定
+					float dx = shot->getPos().x - invertShot->getPos().x;
+					float dy = shot->getPos().y - invertShot->getPos().y;
+					float dr = dx * dx + dy * dy;// A²＝B²＋C²
+
+					float ar = Shot::kShotSize + InvertShot::kShotSize;// 当たり判定の大きさ
+
+					float dl = ar * ar;
+
+					// プレイヤーのショットとエネミーのショットが当たったとき(X,Y)
+					if (dr < dl)
+					{
+						// 円形の当たり判定(Z,Y)
+						dx = shot->getPos().z - invertShot->getPos().z;
+						dr = dx * dx + dy * dy;// A²＝B²＋C²
+
+						dl = ar * ar;
+
+						// プレイヤーのショットとエネミーのショットが当たったとき(Z,Y)
+						if (dr < dl)
+						{
+
+							// プレイヤーの弾を消す
+							shot->setExist(false);
+
+
+							// エネミーの弾を消す
+							invertShot->setExist(false);
+						}
+					}
+
 				}
 			}
 		}

@@ -106,6 +106,9 @@ public:
 	// トーチカとエネミーショットのあたり判定
 	void BunkerToInvertShotCollision();
 
+	// プレイヤーショットとエネミーショットの当たり判定
+	void ShotToInvertShotCollision();
+
 private:
 
 	// エネミーのスライドカウント

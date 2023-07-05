@@ -10,11 +10,9 @@ class SceneMain;
 class Shot
 {
 public:
-	// エネミーの最大数
-	static constexpr int kEnemyMaxNum = SceneMain::kEnemyMaxNum;
 
 	// ショットのサイズ
-	static constexpr float kShotSize = 1.0f;
+	static constexpr float kShotSize = 1.1f;
 public:
 	Shot();
 	virtual ~Shot();
