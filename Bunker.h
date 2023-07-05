@@ -15,7 +15,7 @@ public:
 	void getSceneMainPointer(SceneMain* sceneMain) { m_pSceneMain = sceneMain; }
 
 
-	void init(int savePosX, int savePosY);
+	void init(int savePosX);
 
 	void update();
 
