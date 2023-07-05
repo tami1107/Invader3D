@@ -23,6 +23,9 @@ public:
 	// どこまで移動するのか (kMovePosX * kLimitMove)
 	static constexpr int kLimitMove = 6;
 
+	// ゲームオーバー座標
+	static constexpr float kGameOverPosZ = 0.0f;
+
 public:
 	Enemy();
 	virtual ~Enemy();

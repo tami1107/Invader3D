@@ -29,7 +29,7 @@ namespace
 
 
 	// ゲームオーバー座標
-	constexpr float kGameOverPosY = 0.0f;
+	constexpr float kGameOverPosZ = Enemy::kGameOverPosZ;
 
 
 	// グラフィックサイズ
@@ -103,7 +103,6 @@ void Enemy::init(int savePosX, int savePosZ)
 
 	// アニメーションナンバーの初期化
 	m_animationNum = 0;
-
 }
 
 void Enemy::update()
@@ -268,7 +267,7 @@ void Enemy::Move()
 			m_frameCount = moveFrame;
 
 			// ゲームオーバーするかどうか
-			if (m_pos.z <= kGameOverPosY)
+			if (m_pos.z <= kGameOverPosZ)
 			{
 				m_pSceneMain->getIsGameOverFlag(true);
 			}
