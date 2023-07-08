@@ -16,7 +16,6 @@ public:
 	// クラスポインタの取得
 	void getPlayerPointer(std::shared_ptr<Player>player) { m_pPlayer = player; }
 
-
 	// 発射
 	void start(VECTOR pos);
 

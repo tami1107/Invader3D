@@ -15,6 +15,7 @@ class GameOver;
 class MainUI;
 class BackGround;
 class Particle;
+class Particle3D;
 class SceneMain : public SceneBase
 {
 public:
@@ -43,8 +44,10 @@ public:
 	static constexpr int kAddedPoints = 10;
 
 	// パーティクルの最大数
-	static constexpr int kParticleMaxNum = 64;
+	static constexpr int kParticleMaxNum = 128;
 
+	// ヒットストップ時に止める時間（フレーム）
+	static constexpr int kFreezeFrameMaxCount = 60;
 public:
 	SceneMain();
 
@@ -68,6 +71,9 @@ public:
 
 public:
 
+	// ヒットストップ処理
+	void FreezeFrame();
+
 	// リセット処理
 	void RsetProcess();
 
@@ -80,14 +86,14 @@ public:
 	// プレイヤーがダメージを受けたときの処理
 	void PlayerDamageProcess();
 
-
 	// エネミーの存在処理
 	void EnemyExistProcess();
-
 
 	// パーティクル生成
 	void createParticle(VECTOR pos, int color);
 
+	// パーティクル生成3D
+	void createParticle3D(VECTOR pos, int color, int num);
 
 
 
@@ -110,6 +116,13 @@ public:
 	void ShotToInvertShotCollision();
 
 private:
+
+	// ヒットストップカウント
+	int m_freezeFrameCount;
+
+	// ヒットストップ中かのフラグ
+	bool m_isFreezeFrame;
+
 
 	// エネミーのスライドカウント
 	int m_enemySlideCount;
@@ -166,7 +179,6 @@ private:
 	// トーチカのグラフィック
 	int m_bunkerGraphic[kBunkerMaxNum];
 
-
 	// クラスポインタ
 	std::shared_ptr<Player>m_pPlayer;
 	std::shared_ptr<Camera>m_pCamera;
@@ -178,4 +190,5 @@ private:
 	std::shared_ptr<MainUI>m_pMainUI;
 	std::shared_ptr<BackGround>m_pBackGround;
 	std::shared_ptr<Particle>m_pParticle[kParticleMaxNum];
+	std::shared_ptr<Particle3D>m_pParticle3D[kParticleMaxNum];
 };

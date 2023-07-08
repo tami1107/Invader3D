@@ -73,11 +73,11 @@ void InvertShot::draw()
 	if (!m_isExist) return;
 
 	// ショットの描画
-	MV1DrawModel(m_modeleHandle);
+	//MV1DrawModel(m_modeleHandle);
 
 	// 当たり判定
-#if false
-	DrawSphere3D(m_pos, kCircleSize, 32, GetColor(0, 255, 0), GetColor(0, 0, 0), true);
+#if true
+	DrawSphere3D(m_pos, kShotSize, 32, GetColor(0, 255, 0), GetColor(0, 0, 0), true);
 #endif
 }
 

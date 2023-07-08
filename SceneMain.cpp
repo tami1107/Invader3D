@@ -12,6 +12,7 @@
 #include "MainUI.h"
 #include "BackGround.h"
 #include "Particle.h"
+#include "Particle3D.h"
 
 namespace
 {
@@ -21,17 +22,21 @@ namespace
 	// エネミーグラフィックの挿入
 	const char* const kEnemyGraphic2FileName = "data/enemy2.png";
 
-	// ショットグラフィック
+	// ショットモデルグラフィック
 	const char* const kShotGraphicFileName = "data/modele/cube.mv1";
 
-	// エネミーショットグラフィック
+	// エネミーショットモデルグラフィック
 	const char* const kEnemyShotGraphicFileName = "data/modele/cube.mv1";
 
 	// パーティクルのグラフィックファイル名
 	const char* const kParticleGraphicFileName = "data/particle.png";
 
-	// トーチカのグラフィックファイル名
+	// トーチカのモデルグラフィックファイル名
 	const char* const kBunkerGraphicFileName = "data/modele/bunker.mv1";
+
+	// 3Dパーティクルのモデルグラフィックファイル名
+	const char* const kParticleModelFileName = "data/modele/cube.mv1";
+
 
 
 	// エネミーの横距離
@@ -58,12 +63,36 @@ namespace
 
 	// パーティクルの分散量
 	constexpr int kParticleDistributedValue = 32;
+
+	// ショットが衝突したときのパーティクルのスケール
+	constexpr float kShotParticleScale = 1.0f;
+
+	// ショットが衝突したときのパーティクルの分散量
+	constexpr int kShotParticleDistributedValue = 16;
+
+	// トーチカが破壊されたときのパーティクルのスケール
+	constexpr float kBunkerBreakParticleScale = 5.0f;
+
+	// トーチカが破壊されたときのパーティクルの分散量
+	constexpr int kBunkerBreakParticleDistributedValue = 32;
+
+	// プレイヤーがやられたときのパーティクルのスケール
+	constexpr float kPlayerKillParticleScale = 3.0f;
+
+	// プレイヤーがやられたときのパーティクルの分散量
+	constexpr int kPlayerKillParticleDistributedValue = 32;
+
+	
+
+	
 }
 
 
 
 
 SceneMain::SceneMain():
+	m_freezeFrameCount(0),
+	m_isFreezeFrame(false),
 	m_enemySlideCount(0),
 	m_enemyLineCount(0),
 	m_enemyLine(0),
@@ -107,6 +136,12 @@ SceneMain::SceneMain():
 		particle = std::make_shared<Particle>();
 	}
 
+	for (auto& particle3D : m_pParticle3D)
+	{
+		particle3D = std::make_shared<Particle3D>();
+	}
+
+
 	// グラフィックハンドルの初期化
 	for (auto& handle : m_enemyGraphic)
 	{
@@ -140,7 +175,6 @@ SceneMain::~SceneMain()
 	{
 		MV1DeleteModel(bunker);
 	}
-
 
 	DeleteGraph(m_particleGraphic);
 	MV1DeleteModel(m_shotGraphic);
@@ -232,6 +266,22 @@ void SceneMain::init()
 	}
 
 
+	// グラフィックの挿入
+	int particleModel = MV1LoadModel(kParticleModelFileName);
+
+	// グラフィックの格納配列
+	int particleModelGnar[kParticleMaxNum];
+
+	// 3Dパーティクルにグラフィックを送る
+	for (int i=0;i<kParticleMaxNum;i++)
+	{
+		// モデルを配列にコピーする
+		particleModelGnar[i]= MV1DuplicateModel(particleModel);
+
+		m_pParticle3D[i]->setHandle(particleModelGnar[i]);
+	}
+
+
 
 	// クラスの初期化処理
 	m_pPlayer->init();
@@ -252,7 +302,6 @@ void SceneMain::init()
 	}
 
 
-
 	// エネミーの生成
 	CreateEnemy();
 
@@ -260,12 +309,19 @@ void SceneMain::init()
 	CreateBunker();
 
 	// 変数の初期化
+	m_freezeFrameCount = kFreezeFrameMaxCount;
+	m_isFreezeFrame = false;
 	m_isGameOver = false;
 	m_isReset = false;
 	m_enemyLevel = 0;
 
 	// プレイヤー残機の代入
 	m_playerRemaining = kPlayerRemaining;
+
+
+	// グラフィック削除
+	MV1DeleteModel(particleModel);
+	
 }
 
 SceneBase* SceneMain::update()
@@ -274,6 +330,9 @@ SceneBase* SceneMain::update()
 	if (m_isGameOver)
 	{
 		m_pGameOver->update();
+
+		m_isFreezeFrame = false;
+
 		return this;
 	}
 
@@ -287,16 +346,12 @@ SceneBase* SceneMain::update()
 
 
 	// クラスのアップデート処理
-	m_pPlayer->update();
 	m_pCamera->update();
 	m_pMainUI->update();
 	m_pBackGround->update();
 
 
-	for (auto& enemy : m_pEnemy)
-	{
-		enemy->update();
-	}
+
 	for (auto shot : m_pShot)
 	{
 		shot->update();
@@ -313,20 +368,36 @@ SceneBase* SceneMain::update()
 	{
 		particle->update();
 	}
-
-
-	if (Pad::isTrigger(PAD_INPUT_1))
+	for (auto& particle3D : m_pParticle3D)
 	{
-		return (new SceneTitle);
+		particle3D->update();
 	}
 
 
+
+	// ヒットストップ中は処理を行わない
+	if (!m_isFreezeFrame)
+	{
+		m_pPlayer->update();
+
+		for (auto& enemy : m_pEnemy)
+		{
+			enemy->update();
+		}
+	}
 
 	// プレイヤーショットとエネミーショットの当たり判定
 	ShotToInvertShotCollision();
 
 
+	// ヒットストップ処理
+	FreezeFrame();
 
+	// タイトルに戻る
+	if (Pad::isTrigger(PAD_INPUT_1))
+	{
+		return (new SceneTitle);
+	}
 	// エネミーをすべて消す
 #if true
 
@@ -350,19 +421,18 @@ SceneBase* SceneMain::update()
 
 void SceneMain::draw()
 {
-
 	
 	if (m_isGameOver)
 	{
 		m_pGameOver->draw();
 	}
 
-	
+
 	// クラスの描画処理
-	m_pPlayer->draw();
 	m_pCamera->draw();
 	m_pMainUI->draw();
 	m_pBackGround->draw();
+	m_pPlayer->draw();
 
 	for (auto& enemy : m_pEnemy)
 	{
@@ -384,12 +454,63 @@ void SceneMain::draw()
 	{
 		particle->draw();
 	}
+	for (auto& particle3D : m_pParticle3D)
+	{
+		particle3D->draw();
+	}
+
+	
+
 
 
 	DrawString(0, 0, "メイン画面", GetColor(255, 255, 255));
 
 	// エネミーの数を表示
 	DrawFormatString(0, 6 * 15, 0xffffff, "Maim enemyCount : %d", m_enemyCount);
+}
+
+void SceneMain::FreezeFrame()
+{
+	// フラグがfalseならここで処理を終わる
+	if (!m_isFreezeFrame)return;
+
+	// フレームカウントを減らす
+	m_freezeFrameCount--;
+
+	// カメラクラス
+	m_pCamera->ShakeScreen(m_freezeFrameCount);
+
+
+
+	
+
+
+
+	// フレームカウントが0になったらフレームカウントを初期値に戻しフラグをfalseにする
+	if (m_freezeFrameCount < 0)
+	{
+		// すべてのショットをみる
+		for (auto& shot : m_pShot)
+		{
+			// ショットを消す
+			shot->setExist(false);
+		}
+		// すべてのショットをみる
+		for (auto& shot : m_pInvertShot)
+		{
+			// ショットを消す
+			shot->setExist(false);
+		}
+
+
+
+		// フレームカウントの初期化
+		m_freezeFrameCount = kFreezeFrameMaxCount;
+
+		// フラグをfalseにする
+		m_isFreezeFrame = false;
+	}
+
 }
 
 void SceneMain::RsetProcess()
@@ -562,13 +683,14 @@ void SceneMain::PlayerDamageProcess()
 		m_enemyLevel -= 1;
 	}
 
-
 	// プレイヤーのHPが0だった場合はゲームオーバーフラグをtrueにする
 	if (m_playerRemaining == 0)
 	{
 		m_isGameOver = true;
 	}
 
+	// ヒットストップをする
+	m_isFreezeFrame = true;
 }
 
 /// <summary>
@@ -629,6 +751,7 @@ void SceneMain::createParticle(VECTOR pos, int color)
 	int particleCount = 0;
 	
 	
+
 	// すべてのパーティクルをみる
 	for (auto& particle : m_pParticle)
 	{
@@ -640,8 +763,8 @@ void SceneMain::createParticle(VECTOR pos, int color)
 
 			// ショットを打つ
 			particle->start(VECTOR(pos), color);
-
 		}
+
 
 		//パーティクルの数が32個を超えたら処理を終える
 		if (particleCount >= kParticleDistributedValue)
@@ -650,6 +773,84 @@ void SceneMain::createParticle(VECTOR pos, int color)
 		}
 	}
 	
+
+
+}
+
+/// <summary>
+/// 3Dパーティクル
+/// </summary>
+/// <param name="pos">位置</param>
+/// <param name="color">色</param>
+/// <param name="num">番号指定</param>
+void SceneMain::createParticle3D(VECTOR pos, int color, int num)
+{
+
+	// モデルのスケール
+	float modeleScale = 0.0f;
+
+	// パーティクルの分散量
+	int particleDistributedValue = 0;
+
+
+	// サイズを変更する
+	switch (num)
+	{
+	case 0:// ショット同士の場合
+
+		// サイズ指定
+		modeleScale = kShotParticleScale;
+
+		// パーティクルの分散量指定
+		particleDistributedValue = kShotParticleDistributedValue;
+
+		break;
+
+	case 1:// トーチカが破壊された場合
+
+		// サイズ指定
+		modeleScale = kBunkerBreakParticleScale;
+
+		// パーティクルの分散量指定
+		particleDistributedValue = kBunkerBreakParticleDistributedValue;
+
+		break;
+
+	case 2:// プレイヤーがやられた場合
+
+		// サイズ指定
+		modeleScale = kPlayerKillParticleScale;
+
+		// パーティクルの分散量指定
+		particleDistributedValue = kPlayerKillParticleDistributedValue;
+
+		break;
+	}
+
+
+
+	// パーティクルの数を数える
+	int particleCount = 0;
+
+	// すべてのパーティクルをみる
+	for (auto& particle3D : m_pParticle3D)
+	{
+		// 存在していないパーティクルを探す
+		if (!particle3D->isExist())
+		{
+			// ショットを打つたびにカウントを増やす
+			particleCount++;
+
+			// ショットを打つ
+			particle3D->start(VECTOR(pos), color, modeleScale);
+		}
+
+		//パーティクルの数が32個を超えたら処理を終える
+		if (particleCount >= particleDistributedValue)
+		{
+			break;
+		}
+	}
 }
 
 bool SceneMain::CreateShotPlayer(VECTOR pos)
@@ -745,8 +946,6 @@ void SceneMain::EnemyToShotCollision()
 							m_score += kAddedPoints;
 
 							m_pMainUI->getScore(m_score);
-
-
 						}
 					}
 				}
@@ -903,16 +1102,15 @@ void SceneMain::ShotToInvertShotCollision()
 							// プレイヤーの弾を消す
 							shot->setExist(false);
 
-
 							// エネミーの弾を消す
 							invertShot->setExist(false);
+
+							// パーティクルを発生させる
+							createParticle3D(shot->getPos(),0,0);
 						}
 					}
-
 				}
 			}
 		}
 	}
 }
-
-

@@ -1,6 +1,8 @@
 #include "Camera.h"
 #include "Player.h"
 #include "Pad.h"
+#include "SceneMain.h"
+
 
 namespace
 {
@@ -12,6 +14,12 @@ namespace
 
 	// カメラの回転位置
 	constexpr float kCameraRot = 0.8f;
+
+	// 揺れる大きさ
+	constexpr int kShakeMaxRand = 2;
+
+	// 揺らす時間
+	constexpr int kShakeFrame = SceneMain::kFreezeFrameMaxCount;
 }
 
 
@@ -89,9 +97,10 @@ void Camera::update()
 		cameraPos = VGet(0.0f,  100.0f, -10.0f);
 	}
 
+	m_pos = cameraPos;
 
-	// カメラの回転角度
-	SetCameraPositionAndAngle(cameraPos, m_cameraRot, 0.0f, 0.0f);
+
+	
 
 
 
@@ -108,8 +117,44 @@ void Camera::update()
 void Camera::draw()
 {
 
-	
+	// カメラの回転角度
+	SetCameraPositionAndAngle(m_pos, m_cameraRot, 0.0f, 0.0f);
 	
 
 
+}
+
+void Camera::ShakeScreen(int frameCount)
+{
+	VECTOR shekePos = VGet(0.0f, 0.0f, 0.0f);
+
+	// x,yをマイナスするかしないか
+	int x = GetRand(1);
+	int y = GetRand(1);
+
+
+	// 割合
+	int ratio = 100 * frameCount;
+
+	// 比率
+	float rate = ratio / kShakeFrame;
+
+	// 小数化
+	float decimal = rate * 0.01;
+
+
+	// 振動幅(計算)
+	int afterShakeWidth = kShakeMaxRand * decimal;
+
+
+	// ランダム値で座標を変換する
+	shekePos.x = GetRand(afterShakeWidth);
+	shekePos.y = GetRand(afterShakeWidth);
+
+
+	// x or yが0の時、位置をマイナスする
+	if (x == 0)shekePos.x *= -1;
+	if (y == 0)shekePos.y *= -1;
+
+	m_pos = VAdd(m_pos, shekePos);
 }

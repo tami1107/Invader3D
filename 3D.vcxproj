@@ -149,6 +149,7 @@
     <ClCompile Include="MainUI.cpp" />
     <ClCompile Include="Pad.cpp" />
     <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="Particle3D.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SceneBase.cpp" />
     <ClCompile Include="SceneMain.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="MainUI.h" />
     <ClInclude Include="Pad.h" />
     <ClInclude Include="Particle.h" />
+    <ClInclude Include="Particle3D.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="SceneBase.h" />
     <ClInclude Include="SceneMain.h" />

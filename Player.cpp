@@ -41,8 +41,8 @@ Player::~Player()
 	m_pSceneMain = nullptr;
 	delete m_pSceneMain;
 
-	// グラフィックの削除
-	DeleteGraph(m_modeleHandle);
+	// モデルの削除
+	MV1DeleteModel(m_modeleHandle);
 }
 
 void Player::init()

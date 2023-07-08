@@ -100,6 +100,8 @@ void Bunker::DamegeProcess(int damages)
 	if (m_hp <= 0)
 	{
 		m_isExist = false;
+
+		m_pSceneMain->createParticle3D(m_pos, 0, 1);
 	}
 }
 

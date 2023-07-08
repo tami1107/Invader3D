@@ -4,8 +4,6 @@
 #include "SceneMain.h"
 
 
-
-
 class SceneMain;
 class Shot
 {

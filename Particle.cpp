@@ -147,10 +147,12 @@ void Particle::UpdatePolygon()
 
 void Particle::Move()
 {
+	// 重力を与える
+	m_vec.y -= kGravity;
+
 	// ベクトルの加算
 	m_pos = VAdd(m_pos, m_vec);
 
-	m_vec.y -= kGravity;
 }
 
 void Particle::MoveLimit()

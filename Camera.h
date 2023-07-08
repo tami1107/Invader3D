@@ -18,6 +18,9 @@ public:
 	void update();
 	void draw();
 
+public:
+	// ‰æ–Ê‚ğ—h‚ç‚·ˆ—
+	void ShakeScreen(int frameCount);
 
 private:
 	// •\¦ˆÊ’u
