@@ -15,7 +15,7 @@ namespace
 Particle::Particle() :
 	m_pos(),
 	m_vec(),
-	m_color(0),
+	m_color(),
 	m_handle(-1),
 	m_isExist(false)
 {	
@@ -50,9 +50,19 @@ void Particle::draw()
 {
 	if (!m_isExist)	return;
 	
+
+	MATERIALPARAM Material;
+
+	Material.Diffuse = GetColorF(0.0f, 0.0f, 0.0f, 0.0f);
+	Material.Specular = GetColorF(1.0f, 1.0f, 1.0f, 0.0f);
+	Material.Ambient = GetColorF(0.0f, 0.0f, 0.0f, 0.0f);
+	Material.Emissive = GetColorF(m_color.x, m_color.y, m_color.z, 0.0f);
+	Material.Power = 20.0f;
+
+	SetMaterialParam(Material);
+
 	// ２ポリゴンの描画
 	DrawPolygon3D(Vertex, 2, m_handle, true);
-
 
 
 	// 球の表示
@@ -63,7 +73,7 @@ void Particle::draw()
 
 }
 
-void Particle::start(VECTOR pos, int color)
+void Particle::start(VECTOR pos, VECTOR color)
 {
 	m_isExist = true;
 	m_pos = pos;
@@ -80,28 +90,28 @@ void Particle::InitPolygon()
 {
 
 	// ２ポリゴン分の頂点の座標と法線以外のデータをセット
-	Vertex[0].dif = GetColorU8(255, 255, 255, 255);
+	Vertex[0].dif = GetColorU8(0, 0, 0, 255);
 	Vertex[0].spc = GetColorU8(0, 0, 0, 0);
 	Vertex[0].u = 0.0f;
 	Vertex[0].v = 0.0f;
 	Vertex[0].su = 0.0f;
 	Vertex[0].sv = 0.0f;
 
-	Vertex[1].dif = GetColorU8(255, 255, 255, 255);
+	Vertex[1].dif = GetColorU8(0, 0, 0, 255);
 	Vertex[1].spc = GetColorU8(0, 0, 0, 0);
 	Vertex[1].u = 1.0f;
 	Vertex[1].v = 0.0f;
 	Vertex[1].su = 0.0f;
 	Vertex[1].sv = 0.0f;
 
-	Vertex[2].dif = GetColorU8(255, 255, 255, 255);
+	Vertex[2].dif = GetColorU8(0, 0, 0, 255);
 	Vertex[2].spc = GetColorU8(0, 0, 0, 0);
 	Vertex[2].u = 0.0f;
 	Vertex[2].v = 1.0f;
 	Vertex[2].su = 0.0f;
 	Vertex[2].sv = 0.0f;
 
-	Vertex[3].dif = GetColorU8(255, 255, 255, 255);
+	Vertex[3].dif = GetColorU8(0, 0, 0, 255);
 	Vertex[3].spc = GetColorU8(0, 0, 0, 0);
 	Vertex[3].u = 1.0f;
 	Vertex[3].v = 1.0f;

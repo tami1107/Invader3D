@@ -11,10 +11,17 @@ public:
 
 	// ショットのサイズ
 	static constexpr float kShotSize = 1.1f;
+
+	// ショット1カラーR
+	static constexpr float kShotCollarR = 1.0f;
+	// ショット1カラーG
+	static constexpr float kShotCollarG = 1.0f;
+	// ショット1カラーB
+	static constexpr float kShotCollarB = 1.0f;
+
 public:
 	Shot();
 	virtual ~Shot();
-
 
 
 	// クラスポインタの取得
@@ -60,6 +67,7 @@ private:
 
 	// 存在フラグ
 	bool m_isExist;
+
 
 	// 表示位置
 	VECTOR m_pos;

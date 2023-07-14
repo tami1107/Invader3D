@@ -1,31 +1,11 @@
 #pragma once
 #include "game.h"
+#include "Setting.h"
+
 
 class SceneMain;
 class Enemy
 {
-public:
-	// 半球サイズ
-	static constexpr float kCircleSize = 5.0f;
-
-	// エネミーグラフィック数
-	static constexpr int kEnemyGraphicNum = 2;
-
-	// 初期座標
-	static constexpr float kInitPosZ = 100.0f;
-
-	// 移動量X
-	static constexpr float kMovePosX = 5.0f;
-
-	// 移動量Z
-	static constexpr float kMovePosZ = 10.0f;
-
-	// どこまで移動するのか (kMovePosX * kLimitMove)
-	static constexpr int kLimitMove = 6;
-
-	// ゲームオーバー座標
-	static constexpr float kGameOverPosZ = 0.0f;
-
 public:
 	Enemy();
 	virtual ~Enemy();
@@ -34,7 +14,7 @@ public:
 	void getSceneMainPointer(SceneMain* sceneMain) { m_pSceneMain = sceneMain; }
 
 
-	void init(int savePosX, int savePosZ);
+	void init(int savePosX, int savePosZ, int enemyNum);
 
 	void update();
 	
@@ -48,14 +28,22 @@ public:
 	bool isExist() const { return m_isExist; }
 	void setExist(bool isExist) { m_isExist = isExist; }
 
+	// エネミーの番号を返す
+	int enemyNum() const { return m_enemyNum; }
 public:
 
 
 	// グラフィックデータ設定
 	void setHandle(int index, int handle) { m_handle[index] = handle; }
 
+	// カラー取得
+	void setColor(VECTOR color) { m_color = color; }
+
 	// 移動までにかかる時間を減らす値を取得
 	void getDecrementTime(int decrementTime) { m_decrementTime = decrementTime; }
+
+	// レベルによる移動にかかる時間
+	void getLvMoveTime(int lvMove) { m_LvMove = lvMove; }
 
 public:
 	// ポリゴン初期設定
@@ -98,14 +86,22 @@ private:
 	int m_decrementTime;
 
 	// エネミーのグラフィック
-	int m_handle[kEnemyGraphicNum];
+	int m_handle[EnemySet::kEnemyGraphicNum];
 
 	// アニメーションナンバー
 	int m_animationNum;
 
+	// エネミーナンバー
+	int m_enemyNum;
+
+	// レベルによる移動スピード
+	int m_LvMove;
 
 	// 表示位置
 	VECTOR m_pos;
+
+	// 色
+	VECTOR m_color;
 
 	// クラスポインタ
 	SceneMain* m_pSceneMain;

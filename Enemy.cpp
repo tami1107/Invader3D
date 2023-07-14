@@ -1,41 +1,6 @@
 #include "Enemy.h"
 #include "SceneMain.h"
-
-namespace
-{
-	// 初期位置
-	constexpr float kInitPosX = 0.0f;
-	constexpr float kInitPosY = 5.0f;
-	constexpr float kInitPosZ = Enemy::kInitPosZ;
-
-
-	// ショットの生成間隔(フレーム数)
-	constexpr int kShotInterval = 60;
-
-
-	// 移動間隔(フレーム数)
-	//constexpr int kMoveInterval = 120;
-
-	// 移動間隔(フレーム数)デバッグ
-	constexpr int kMoveInterval = 60;
-
-	// 移動量X
-	constexpr float kMovePosX = Enemy::kMovePosX;
-	// 移動量Y
-	constexpr float kMovePosZ = Enemy::kMovePosZ;
-
-	// どこまで移動するのか
-	constexpr int kLimitMove = Enemy::kLimitMove;
-
-
-	// ゲームオーバー座標
-	constexpr float kGameOverPosZ = Enemy::kGameOverPosZ;
-
-
-	// グラフィックサイズ
-	constexpr float kGraphicSize = 5.0f;
-
-}
+#include "Setting.h"
 
 
 Enemy::Enemy() :
@@ -48,7 +13,10 @@ Enemy::Enemy() :
 	m_shotInterval(0),
 	m_decrementTime(0),
 	m_animationNum(0),
+	m_enemyNum(0),
+	m_LvMove(0),
 	m_pos(),
+	m_color(),
 	m_pSceneMain(nullptr)
 {
 	for (auto& handle : m_handle)
@@ -73,7 +41,7 @@ Enemy::~Enemy()
 	}
 }
 
-void Enemy::init(int savePosX, int savePosZ)
+void Enemy::init(int savePosX, int savePosZ, int enemyNum)
 {
 	
 	// 存在している
@@ -83,14 +51,18 @@ void Enemy::init(int savePosX, int savePosZ)
 	m_savePosX = savePosX;
 	m_savePosZ = savePosZ;
 
+	// エネミーナンバーの保存
+	m_enemyNum = enemyNum;
+
+	
 	// 移動インターバル減少値の初期化
 	m_decrementTime = 0;
 
 	// 位置の初期化
-	m_pos = VGet(kInitPosX + m_savePosX, kInitPosY, kInitPosZ + savePosZ);
+	m_pos = VGet(EnemySet::kInitPosX + m_savePosX, EnemySet::kInitPosY, EnemySet::kInitPosZ + savePosZ);
 
 	// 移動の間隔
-	m_frameCount = kMoveInterval;
+	m_frameCount = EnemySet::kMoveInterval;
 
 	// 最初は右に進む
 	m_isRightMove = true;
@@ -127,19 +99,27 @@ void Enemy::draw()
 	// エネミーが存在しなかった場合、ここで処理を終了する
 	if (!m_isExist) return;
 
+	MATERIALPARAM Material;
+
+	Material.Diffuse = GetColorF(0.0f, 0.0f, 0.0f, 0.0f);
+	Material.Specular = GetColorF(1.0f, 1.0f, 1.0f, 0.0f);
+	Material.Ambient = GetColorF(0.0f, 0.0f, 0.0f, 0.0f);
+	Material.Emissive = GetColorF(m_color.x, m_color.y, m_color.z, 0.0f);
+	Material.Power = 20.0f;
+
+	SetMaterialParam(Material);
+
 
 	// ２ポリゴンの描画
 	DrawPolygon3D(Vertex, 2, m_handle[m_animationNum], true);
 
-	// 画像描画
-	//DrawBillboard3D(m_pos, 0.5, 0.5, kGraphicSize, 0.0, m_handle[m_animationNum], true);
-
 	
-	// 当たり判定の表示
-#if false
-	// 球の表示
-	DrawSphere3D(m_pos, kCircleSize, 32, 0xffffff, GetColor(0, 0, 0), true);
-#endif
+	// Debug
+	{
+		if (!EnemySet::kDebug)return;
+		// 当たり判定の表示（球体）
+		DrawSphere3D(m_pos, EnemySet::kCircleSize, 32, 0xffffff, GetColor(0, 0, 0), true);
+	}
 }
 
 
@@ -147,28 +127,28 @@ void Enemy::InitPolygon()
 {
 
 	// ２ポリゴン分の頂点の座標と法線以外のデータをセット
-	Vertex[0].dif = GetColorU8(255, 255, 255, 255);
+	Vertex[0].dif = GetColorU8(0, 0, 0, 255);
 	Vertex[0].spc = GetColorU8(0, 0, 0, 0);
 	Vertex[0].u = 0.0f;
 	Vertex[0].v = 0.0f;
 	Vertex[0].su = 0.0f;
 	Vertex[0].sv = 0.0f;
 
-	Vertex[1].dif = GetColorU8(255, 255, 255, 255);
+	Vertex[1].dif = GetColorU8(0, 0, 0, 255);
 	Vertex[1].spc = GetColorU8(0, 0, 0, 0);
 	Vertex[1].u = 1.0f;
 	Vertex[1].v = 0.0f;
 	Vertex[1].su = 0.0f;
 	Vertex[1].sv = 0.0f;
 
-	Vertex[2].dif = GetColorU8(255, 255, 255, 255);
+	Vertex[2].dif = GetColorU8(0, 0, 0, 255);
 	Vertex[2].spc = GetColorU8(0, 0, 0, 0);
 	Vertex[2].u = 0.0f;
 	Vertex[2].v = 1.0f;
 	Vertex[2].su = 0.0f;
 	Vertex[2].sv = 0.0f;
 
-	Vertex[3].dif = GetColorU8(255, 255, 255, 255);
+	Vertex[3].dif = GetColorU8(0, 0, 0, 255);
 	Vertex[3].spc = GetColorU8(0, 0, 0, 0);
 	Vertex[3].u = 1.0f;
 	Vertex[3].v = 1.0f;
@@ -196,10 +176,10 @@ void Enemy::UpdatePolygon()
 	TransformMatrix = MMult(TransformMatrix, MGetTranslate(VGet(0.0f, 0.0f, 0.0f)));
 
 	// 行列を使ってワールド座標を算出
-	Vertex[0].pos = VTransform(VGet(m_pos.x + -kGraphicSize, m_pos.y + kGraphicSize, m_pos.z), TransformMatrix);
-	Vertex[1].pos = VTransform(VGet(m_pos.x + kGraphicSize, m_pos.y + kGraphicSize, m_pos.z), TransformMatrix);
-	Vertex[2].pos = VTransform(VGet(m_pos.x + -kGraphicSize, m_pos.y + -kGraphicSize, m_pos.z), TransformMatrix);
-	Vertex[3].pos = VTransform(VGet(m_pos.x + kGraphicSize, m_pos.y + -kGraphicSize, m_pos.z), TransformMatrix);
+	Vertex[0].pos = VTransform(VGet(m_pos.x + -EnemySet::kGraphicSize, m_pos.y + EnemySet::kGraphicSize, m_pos.z), TransformMatrix);
+	Vertex[1].pos = VTransform(VGet(m_pos.x + EnemySet::kGraphicSize, m_pos.y + EnemySet::kGraphicSize, m_pos.z), TransformMatrix);
+	Vertex[2].pos = VTransform(VGet(m_pos.x + -EnemySet::kGraphicSize, m_pos.y + -EnemySet::kGraphicSize, m_pos.z), TransformMatrix);
+	Vertex[3].pos = VTransform(VGet(m_pos.x + EnemySet::kGraphicSize, m_pos.y + -EnemySet::kGraphicSize, m_pos.z), TransformMatrix);
 
 	Vertex[4].pos = Vertex[2].pos;
 	Vertex[5].pos = Vertex[1].pos;
@@ -218,7 +198,7 @@ void Enemy::Move()
 
 
 	// 移動するまでにかかるフレーム
-	int moveFrame = kMoveInterval - m_decrementTime;
+	int moveFrame = EnemySet::kMoveInterval - (m_decrementTime + m_LvMove);
 
 
 	// frameCountが0になったら移動
@@ -235,7 +215,7 @@ void Enemy::Move()
 		
 
 		// 右に進むかどうかのフラグ処理
-		if (m_pos.x >= (kMovePosX * kLimitMove) + m_savePosX)
+		if (m_pos.x >= (EnemySet::kMovePosX * EnemySet::kLimitMove) + m_savePosX)
 		{
 			if (m_isRightMove)
 			{
@@ -245,7 +225,7 @@ void Enemy::Move()
 			}
 		}
 		// 左に進むかどうかのフラグ処理
-		if (m_pos.x <= -(kMovePosX * kLimitMove)+ m_savePosX)
+		if (m_pos.x <= -(EnemySet::kMovePosX * EnemySet::kLimitMove)+ m_savePosX)
 		{
 			if (!m_isRightMove)
 			{
@@ -259,7 +239,7 @@ void Enemy::Move()
 		if (m_isUnderMove)
 		{
 			// 一段手前に行く
-			m_pos.z -= kMovePosZ;
+			m_pos.z -= EnemySet::kMovePosZ;
 
 			m_isUnderMove = false;
 
@@ -267,7 +247,7 @@ void Enemy::Move()
 			m_frameCount = moveFrame;
 
 			// ゲームオーバーするかどうか
-			if (m_pos.z <= kGameOverPosZ)
+			if (m_pos.z <= EnemySet::kGameOverPosZ)
 			{
 				m_pSceneMain->getIsGameOverFlag(true);
 			}
@@ -279,11 +259,11 @@ void Enemy::Move()
 		// フラグによって移動方向を変える
 		if (m_isRightMove)
 		{
-			m_pos.x += kMovePosX;
+			m_pos.x += EnemySet::kMovePosX;
 		}
 		else
 		{
-			m_pos.x -= kMovePosX;
+			m_pos.x -= EnemySet::kMovePosX;
 		}
 
 		// 移動フレームを戻す
@@ -311,12 +291,8 @@ void Enemy::Shot()
 
 		if (isShot == 1)
 		{
-			m_pSceneMain->CreateShotEnemy(m_pos);
+			m_pSceneMain->CreateShotEnemy(m_pos, m_enemyNum);
 		}
-		m_shotInterval = kShotInterval;
+		m_shotInterval = EnemySet::kShotInterval;
 	}
 }
-
-
-
-

@@ -1,6 +1,6 @@
 ﻿#include "InvertShot.h"
 #include "Player.h"
-
+#include "Setting.h"
 
 namespace
 {
@@ -24,7 +24,8 @@ namespace
 InvertShot::InvertShot() :
 	m_isExist(false),
 	m_modeleHandle(-1),
-	m_pos()
+	m_pos(),
+	m_color()
 {
 }
 
@@ -44,6 +45,9 @@ void InvertShot::start(VECTOR pos)
 
 	// ショットを撃ち始めの位置を変更する
 	m_pos.z += kShotBegin;
+
+	// 位置情報をモデルに入れる
+	MV1SetPosition(m_modeleHandle, m_pos);
 }
 
 void InvertShot::init()
@@ -72,11 +76,16 @@ void InvertShot::draw()
 	// 弾が存在しなかった場合、ここで処理を終了する
 	if (!m_isExist) return;
 
+	// ３Ｄモデルに含まれる０番目のマテリアルのディフューズカラーを変更します
+	MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(m_color.x, m_color.y, m_color.z, 1.0f));
+
 	// ショットの描画
-	//MV1DrawModel(m_modeleHandle);
+	MV1DrawModel(m_modeleHandle);
+
+
 
 	// 当たり判定
-#if true
+#if false
 	DrawSphere3D(m_pos, kShotSize, 32, GetColor(0, 255, 0), GetColor(0, 0, 0), true);
 #endif
 }
@@ -100,7 +109,7 @@ void InvertShot::Collision2D()
 
 		float dr = dx * dx + dy * dy;// A²＝B²＋C²
 
-		float ar = kShotSize + Player::kCircleSize;// 当たり判定の大きさ
+		float ar = kShotSize + PlayerSet::kCircleSize;// 当たり判定の大きさ
 		float dl = ar * ar;
 
 		// プレイヤーのショットにエネミーが当たったとき(X,Y)

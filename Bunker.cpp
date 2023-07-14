@@ -60,6 +60,9 @@ void Bunker::init(int savePosX)
 
 	// ˆÊ’uî•ñ‚ðƒ‚ƒfƒ‹‚É“ü‚ê‚é
 	MV1SetPosition(m_modeleHandle, m_pos);
+
+	// FÝ’è
+	MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(kCollarR, kCollarG, kCollarB, 1.0f));
 }
 
 void Bunker::update()
@@ -101,7 +104,7 @@ void Bunker::DamegeProcess(int damages)
 	{
 		m_isExist = false;
 
-		m_pSceneMain->createParticle3D(m_pos, 0, 1);
+		m_pSceneMain->CreateParticle3D(m_pos,1);
 	}
 }
 

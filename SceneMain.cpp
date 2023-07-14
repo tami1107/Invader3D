@@ -13,14 +13,13 @@
 #include "BackGround.h"
 #include "Particle.h"
 #include "Particle3D.h"
+#include "Enemy.h"
+#include "Pause.h"
 
 namespace
 {
-	// エネミーグラフィックの挿入
-	const char* const kEnemyGraphic1FileName = "data/enemy1.png";
+	
 
-	// エネミーグラフィックの挿入
-	const char* const kEnemyGraphic2FileName = "data/enemy2.png";
 
 	// ショットモデルグラフィック
 	const char* const kShotGraphicFileName = "data/modele/cube.mv1";
@@ -32,30 +31,15 @@ namespace
 	const char* const kParticleGraphicFileName = "data/particle.png";
 
 	// トーチカのモデルグラフィックファイル名
-	const char* const kBunkerGraphicFileName = "data/modele/bunker.mv1";
+	const char* const kBunkerGraphicFileName = "data/modele/cube.mv1";
 
 	// 3Dパーティクルのモデルグラフィックファイル名
 	const char* const kParticleModelFileName = "data/modele/cube.mv1";
 
 
+	// レベルが上がるごとにスピードを上げる
+	constexpr int kEnemyLvMoveSpeed = 10;
 
-	// エネミーの横距離
-	constexpr float kEnemyWidthDistance = 20.0;
-
-	// エネミーの移動レベル1（何割以下で速度を上げるのか）
-	constexpr float kEnemyMoveLevel1 = 0.5;
-
-	// エネミーの移動レベル2（何割以下で速度を上げるのか）
-	constexpr float kEnemyMoveLevel2 = 0.2;
-
-	// エネミーの移動インターバル減少値レベル1
-	constexpr int kEnemyMoveInterval1 = 10;
-
-	// エネミーの移動インターバル減少値レベル2
-	constexpr int kEnemyMoveInterva2 = 30;
-
-	// エネミーに下から何列目まで進ませるか
-	constexpr int kEnemyEndCol = 2;
 
 
 	// トーチカの横距離
@@ -82,10 +66,12 @@ namespace
 	// プレイヤーがやられたときのパーティクルの分散量
 	constexpr int kPlayerKillParticleDistributedValue = 32;
 
-	
+	// ゲームオーバー時のフレームカウント(プレイヤーがやられてからなんフレーム後にゲームオーバーに移行させるか)
+	constexpr int kGameOverMaxFrame = 30;
 
-	
 }
+
+
 
 
 
@@ -93,22 +79,24 @@ namespace
 SceneMain::SceneMain():
 	m_freezeFrameCount(0),
 	m_isFreezeFrame(false),
-	m_enemySlideCount(0),
-	m_enemyLineCount(0),
-	m_enemyLine(0),
 	m_isEnemyCreate(false),
+	m_enemyLv(0),
 	m_enemyCount(0),
 	m_isGameOver(false),
 	m_isReset(false),
-	m_enemyLevel(0),
+	m_enemyLineNow(0),
 	m_playerRemaining(0),
 	m_shotGraphic(-1),
 	m_particleGraphic(-1),
+	m_gameOverCount(0),
+	m_isAlivePlayer(true),
+	m_isPause(false),
 	m_pPlayer(std::make_shared<Player>()),
 	m_pCamera(std::make_shared<Camera>()),
 	m_pGameOver(std::make_shared<GameOver>()),
 	m_pMainUI(std::make_shared<MainUI>()),
-	m_pBackGround(std::make_shared<BackGround>())
+	m_pBackGround(std::make_shared<BackGround>()),
+	m_pPause(std::make_shared<Pause>())
 {
 
 	for (auto& enemy : m_pEnemy)
@@ -158,6 +146,11 @@ SceneMain::SceneMain():
 		bunker = -1;
 	}
 
+	for (auto& enemyNum : m_enemyNum)
+	{
+		enemyNum = 0;
+	}
+
 }
 
 SceneMain::~SceneMain()
@@ -186,7 +179,9 @@ void SceneMain::init()
 	// クラスポインタを送る
 	m_pCamera->getPlayerPointer(m_pPlayer);
 	m_pPlayer->getSceneMainPointer(this);
-	m_pGameOver->setSceneMain(this);
+	m_pGameOver->setSceneMainPointer(this);
+	m_pPause->getSceneMainPointer(this);
+
 	for (auto& enemy : m_pEnemy)
 	{
 		enemy->getSceneMainPointer(this);
@@ -203,20 +198,6 @@ void SceneMain::init()
 	{
 		bunker->getSceneMainPointer(this);
 	}
-
-	// エネミーのグラフィックをロード
-	m_enemyGraphic[0] = LoadGraph(kEnemyGraphic1FileName);
-	m_enemyGraphic[1] = LoadGraph(kEnemyGraphic2FileName);
-
-	// 分割したグラフィックを送る
-	for (int i = 0; i < Enemy::kEnemyGraphicNum; i++)
-	{
-		for (auto& enemy : m_pEnemy)
-		{
-			enemy->setHandle(i, m_enemyGraphic[i]);
-		}
-	}
-
 
 
 	// ショットのモデルを読み込む
@@ -289,6 +270,7 @@ void SceneMain::init()
 	m_pGameOver->init();
 	m_pMainUI->init();
 	m_pBackGround->init();
+	m_pPause->init();
 
 	// ショットにグラフィックを送る
 	for (int i = 0; i < kPlayerShotMaxNumber; i++)
@@ -313,15 +295,26 @@ void SceneMain::init()
 	m_isFreezeFrame = false;
 	m_isGameOver = false;
 	m_isReset = false;
-	m_enemyLevel = 0;
+	m_enemyLv = 0;
+	m_enemyLineNow = 0;
 
 	// プレイヤー残機の代入
 	m_playerRemaining = kPlayerRemaining;
 
+	// ゲームオーバーに移行するためのフレーム初期化
+	m_gameOverCount = kGameOverMaxFrame;
+
+	// プレイヤーは生きているのでtrue
+	m_isAlivePlayer = true;
+
+	// ポーズしていないのでfalse
+	m_isPause = false;
 
 	// グラフィック削除
 	MV1DeleteModel(particleModel);
 	
+
+
 }
 
 SceneBase* SceneMain::update()
@@ -345,21 +338,14 @@ SceneBase* SceneMain::update()
 	}
 
 
+	m_pPause->update();
+	// ポーズしていたらこの下の処理を行わない
+	if (m_isPause)return this;
+
 	// クラスのアップデート処理
 	m_pCamera->update();
 	m_pMainUI->update();
 	m_pBackGround->update();
-
-
-
-	for (auto shot : m_pShot)
-	{
-		shot->update();
-	}
-	for (auto& invertShot : m_pInvertShot)
-	{
-		invertShot->update();
-	}
 	for (auto& bunker : m_pBunker)
 	{
 		bunker->update();
@@ -373,16 +359,29 @@ SceneBase* SceneMain::update()
 		particle3D->update();
 	}
 
-
-
 	// ヒットストップ中は処理を行わない
 	if (!m_isFreezeFrame)
 	{
-		m_pPlayer->update();
 
-		for (auto& enemy : m_pEnemy)
+		// プレイヤーのHPが0以外なら処理を行う
+		if (m_playerRemaining != 0)m_pPlayer->update();
+
+
+
+		for (int i = 0; i < kEnemyMaxNum; i++)
 		{
-			enemy->update();
+			int num = (kEnemyMaxNum-1) - i;
+
+			m_pEnemy[num]->update();
+		}
+
+		for (auto shot : m_pShot)
+		{
+			shot->update();
+		}
+		for (auto& invertShot : m_pInvertShot)
+		{
+			invertShot->update();
 		}
 	}
 
@@ -393,11 +392,14 @@ SceneBase* SceneMain::update()
 	// ヒットストップ処理
 	FreezeFrame();
 
-	// タイトルに戻る
-	if (Pad::isTrigger(PAD_INPUT_1))
-	{
-		return (new SceneTitle);
-	}
+	// ゲームオーバーになるまでのカウント処理
+	GameOverCount();
+
+	//// タイトルに戻る
+	//if (Pad::isTrigger(PAD_INPUT_1))
+	//{
+	//	return (new SceneTitle);
+	//}
 	// エネミーをすべて消す
 #if true
 
@@ -432,7 +434,6 @@ void SceneMain::draw()
 	m_pCamera->draw();
 	m_pMainUI->draw();
 	m_pBackGround->draw();
-	m_pPlayer->draw();
 
 	for (auto& enemy : m_pEnemy)
 	{
@@ -459,20 +460,32 @@ void SceneMain::draw()
 		particle3D->draw();
 	}
 
-	
-
+	// プレイヤーが生きていたら表示する
+	if (m_isAlivePlayer)
+	{
+		m_pPlayer->draw();
+	}
 
 
 	DrawString(0, 0, "メイン画面", GetColor(255, 255, 255));
 
 	// エネミーの数を表示
 	DrawFormatString(0, 6 * 15, 0xffffff, "Maim enemyCount : %d", m_enemyCount);
+
+	DrawFormatString(0, 5 * 15, 0xffffff, "Maim playerHP : %d", m_playerRemaining);
+
+
+	m_pPause->draw();
 }
 
 void SceneMain::FreezeFrame()
 {
 	// フラグがfalseならここで処理を終わる
 	if (!m_isFreezeFrame)return;
+
+	// パッドを振動させる
+	StartJoypadVibration(DX_INPUT_PAD1, 500, -1, -1);
+
 
 	// フレームカウントを減らす
 	m_freezeFrameCount--;
@@ -482,13 +495,12 @@ void SceneMain::FreezeFrame()
 
 
 
-	
-
-
-
 	// フレームカウントが0になったらフレームカウントを初期値に戻しフラグをfalseにする
 	if (m_freezeFrameCount < 0)
 	{
+		// パッドの振動を止める
+		StopJoypadVibration(DX_INPUT_PAD1, -1);
+
 		// すべてのショットをみる
 		for (auto& shot : m_pShot)
 		{
@@ -502,32 +514,56 @@ void SceneMain::FreezeFrame()
 			shot->setExist(false);
 		}
 
-
-
 		// フレームカウントの初期化
 		m_freezeFrameCount = kFreezeFrameMaxCount;
 
 		// フラグをfalseにする
 		m_isFreezeFrame = false;
+
+		// プレイヤーのHPが0だった場合はパーティクルを出す
+		if (m_playerRemaining == 0)
+		{
+			CreateParticle3D(m_pPlayer->getPos(), 2);	
+
+			m_isAlivePlayer = false;
+		}
 	}
 
 }
 
 void SceneMain::RsetProcess()
 {
-	// エネミーのレベルを1に戻す
-	m_enemyLevel = 0;
+	// エネミーの列を0に戻す
+	m_enemyLineNow = 0;
+
+	// エネミーのレベルを0にする
+	m_enemyLv = 0;
+
 
 	// プレイヤーの残機を最初の値に戻す
 	m_playerRemaining = kPlayerRemaining;
 
+	// UIに送る
+	m_pMainUI->getEnemyLv(m_enemyLv);
+	m_pMainUI->getPlayerHp(m_playerRemaining);
+
 	// プレイヤーを初期位置に戻す
 	m_pPlayer->ResetPos();
+
+	// エネミーの数を０にする
+	m_enemyCount = 0;
+
+	// ゲームオーバーに移行するためのフレーム初期化
+	m_gameOverCount = kGameOverMaxFrame;
+
+	// プレイヤーを生きていることにする
+	m_isAlivePlayer = true;
 
 
 	for (auto& enemy : m_pEnemy)
 	{
 		enemy->setExist(false);
+		enemy->getLvMoveTime(0);
 	}
 	for (auto shot : m_pShot)
 	{
@@ -552,29 +588,49 @@ void SceneMain::RsetProcess()
 void SceneMain::CreateEnemy()
 {
 
+	// エネミーのグラフィックをロード
+	m_enemyGraphic[0] = LoadGraph(EnemySet::kEnemy1_1GraphicFileName);
+	m_enemyGraphic[1] = LoadGraph(EnemySet::kEnemy1_2GraphicFileName);
+
+	// 分割したグラフィックを送る
+	for (int i = 0; i < EnemySet::kEnemyGraphicNum; i++)
+	{
+		for (auto& enemy : m_pEnemy)
+		{
+			enemy->setHandle(i, m_enemyGraphic[i]);
+		}
+	}
+
+
 	// 何列で次の行に移るのか
 	int nextLine = kEnemyMaxNum / kEnemyMaxLine;
 
+	// 色指定
+	VECTOR color = VGet(EnemySet::kEnemy1CollarR, EnemySet::kEnemy1CollarG, EnemySet::kEnemy1CollarB);
 
 	// 変数の初期化
-	m_enemyLineCount = 0;
-	m_enemySlideCount = 0;
-	m_enemyLine = 0;
+	int enemyLineCount = 0;
+	int enemySlideCount = 0;
+	int enemyLine = 0;
 
-	// レベルの値によって初期Ｚ座標をずらす
-	float initSlaidPosZ = (Enemy::kMovePosZ * m_enemyLevel);
+	// 現在のエネミーの列の値によって初期Ｚ座標をずらす
+	float initSlaidPosZ = (EnemySet::kMovePosZ * m_enemyLineNow);
 
 	// 初期Ｚ座標の最大値値
-	float initMinPosZ = Enemy::kInitPosZ - ((Enemy::kMovePosZ * kEnemyEndCol) + (Enemy::kMovePosZ));
+	float initMinPosZ = EnemySet::kInitPosZ - ((EnemySet::kMovePosZ * EnemySet::kEnemyEndCol) + (EnemySet::kMovePosZ));
 
-	// 初期Z座標が最大値を上回ったらレベルを0に戻す
+	// 初期Z座標が最大値を上回ったら列を初期値に戻す
 	if (initSlaidPosZ > initMinPosZ)
 	{
-		// レベルを0にする
-		m_enemyLevel = 0;
+		// レベルを上げる
+		m_enemyLv++;
 
-		// レベルの値によって初期Ｚ座標をずらす
-		initSlaidPosZ = (Enemy::kMovePosZ * m_enemyLevel);
+
+		// 列の初期化
+		m_enemyLineNow = 0;
+
+		// 列の値によって初期Ｚ座標をずらす
+		initSlaidPosZ = (EnemySet::kMovePosZ * m_enemyLineNow);
 	}
 
 
@@ -582,46 +638,75 @@ void SceneMain::CreateEnemy()
 	for (int i = 0; i < kEnemyMaxNum; i++)
 	{
 		// 位置をずらす
-		float slidePosX = kEnemyWidthDistance;
-		float slidePosZ = -Enemy::kMovePosZ;
+		float slidePosX = EnemySet::kEnemyWidthDistance;
+		float slidePosZ = -EnemySet::kMovePosZ;
+
 
 		// エネミーを改行する
-		if (m_enemyLineCount == nextLine)
+		if (enemyLineCount == nextLine)
 		{
 			// 変数の初期化
-			m_enemyLineCount = 0;
-			m_enemySlideCount = 0;
+			enemyLineCount = 0;
+			enemySlideCount = 0;
 
 			// 列の変更
-			m_enemyLine++;
+			enemyLine++;
+
+			switch (enemyLine)
+			{
+			case 1:
+				color = VGet(EnemySet::kEnemy2CollarR, EnemySet::kEnemy2CollarG, EnemySet::kEnemy2CollarB);
+				// エネミーのグラフィックをロード
+				m_enemyGraphic[0] = LoadGraph(EnemySet::kEnemy2_1GraphicFileName);
+				m_enemyGraphic[1] = LoadGraph(EnemySet::kEnemy2_2GraphicFileName);
+
+				break;
+			}
 		}
 
+		// エネミーの番号を代入
+		m_enemyNum[i] = enemyLine;
+
 		// 奇数か偶数かで処理を分ける
-		if (m_enemyLineCount % 2 == 0)
+		if (enemyLineCount % 2 == 0)
 		{
-			slidePosX *= -(m_enemyLineCount - m_enemySlideCount);
+			slidePosX *= -(enemyLineCount - enemySlideCount);
 
 			// エネミーの列カウントを増やす
-			m_enemyLineCount++;
+			enemyLineCount++;
 		}
 		else
 		{
-			slidePosX *= (m_enemyLineCount - m_enemySlideCount);
+			slidePosX *= (enemyLineCount - enemySlideCount);
 
 			// スライドカウントを増やすo
-			m_enemySlideCount++;
+			enemySlideCount++;
 			// エネミーの列カウントを増やす
-			m_enemyLineCount++;
+			enemyLineCount++;
 		}
 
 		// 存在を与える
 		m_pEnemy[i]->setExist(true);
 
 		// 現在のY座標の値
-		int nowPosZ = (slidePosZ * m_enemyLine) + (-initSlaidPosZ);
+		int nowPosZ = (slidePosZ * enemyLine) + (-initSlaidPosZ);
 
 		// 位置を送る
-		m_pEnemy[i]->init(slidePosX, nowPosZ);
+		m_pEnemy[i]->init(slidePosX, nowPosZ, m_enemyNum[i]);
+
+		// 色を送る
+		m_pEnemy[i]->setColor(color);
+
+		// レベルによる速度を送る
+		m_pEnemy[i]->getLvMoveTime(m_enemyLv* kEnemyLvMoveSpeed);
+
+
+		// 分割したグラフィックを送る
+		for (int j = 0; j < EnemySet::kEnemyGraphicNum; j++)
+		{
+			m_pEnemy[i]->setHandle(j, m_enemyGraphic[j]);
+		}
+
 
 		// 生成したエネミーの数を数える
 		m_enemyCount++;
@@ -678,15 +763,9 @@ void SceneMain::PlayerDamageProcess()
 
 
 	// エネミーのレベルを下げる
-	if (m_enemyLevel > 0)
+	if (m_enemyLineNow > 0)
 	{
-		m_enemyLevel -= 1;
-	}
-
-	// プレイヤーのHPが0だった場合はゲームオーバーフラグをtrueにする
-	if (m_playerRemaining == 0)
-	{
-		m_isGameOver = true;
+		m_enemyLineNow -= 1;
 	}
 
 	// ヒットストップをする
@@ -700,10 +779,10 @@ void SceneMain::EnemyExistProcess()
 {
 
 	// エネミーの移動レベル1
-	int enemyMoveLevel1 = kEnemyMaxNum * kEnemyMoveLevel1;
+	int enemyMoveLevel1 = kEnemyMaxNum * EnemySet::kEnemyMoveLevel1;
 
 	// エネミーの移動レベル2
-	int enemyMoveLevel2 = kEnemyMaxNum * kEnemyMoveLevel2;
+	int enemyMoveLevel2 = kEnemyMaxNum * EnemySet::kEnemyMoveLevel2;
 
 
 	// エネミーの数を減らす
@@ -716,12 +795,12 @@ void SceneMain::EnemyExistProcess()
 		// エネミーの数がenemyMoveLevel1以下の時、エネミーの移動速度を上げる
 		if (m_enemyCount <= enemyMoveLevel1)
 		{
-			enemy->getDecrementTime(kEnemyMoveInterval1);
+			enemy->getDecrementTime(EnemySet::kEnemyMoveInterval1);
 		}
 		// エネミーの数がenemyMoveLevel2以下の時、エネミーの移動速度を上げる
 		if (m_enemyCount <= enemyMoveLevel2)
 		{
-			enemy->getDecrementTime(kEnemyMoveInterva2);
+			enemy->getDecrementTime(EnemySet::kEnemyMoveInterva2);
 		}
 	}
 
@@ -729,11 +808,25 @@ void SceneMain::EnemyExistProcess()
 	// エネミーの数が0以下の時、エネミーを生成する
 	if (m_enemyCount <= 0)
 	{
-		// エネミーのレベルを上げる
-		m_enemyLevel++;
+		// エネミーの列の値をあげる
+		m_enemyLineNow++;
 
 		// エネミーのレベル値を送る
-		m_pMainUI->getEnemyLv(m_enemyLevel);
+		m_pMainUI->getEnemyLv(m_enemyLv);
+
+		// ショットを消す
+		{
+			for (auto shot : m_pShot)
+			{
+				shot->setExist(false);
+			}
+			for (auto& invertShot : m_pInvertShot)
+			{
+				invertShot->setExist(false);
+			}
+		}
+
+
 
 		// エネミーの生成
 		CreateEnemy();
@@ -746,11 +839,24 @@ void SceneMain::EnemyExistProcess()
 /// <param name="pos">エネミーの位置</param>
 /// <param name="color">色</param>
 /// <returns></returns>
-void SceneMain::createParticle(VECTOR pos, int color)
+void SceneMain::CreateParticle(VECTOR pos, int colorNum)
 {
 	int particleCount = 0;
 	
-	
+	VECTOR color = VGet(0, 0, 0);
+
+
+	switch (colorNum)
+	{
+	case 0:
+		// エネミー1の色を入れる
+		color = VGet(EnemySet::kEnemy1CollarR, EnemySet::kEnemy1CollarG, EnemySet::kEnemy1CollarB);
+		break;
+	case 1:
+		// エネミー1の色を入れる
+		color = VGet(EnemySet::kEnemy2CollarR, EnemySet::kEnemy2CollarG, EnemySet::kEnemy2CollarB);
+		break;
+	}
 
 	// すべてのパーティクルをみる
 	for (auto& particle : m_pParticle)
@@ -765,16 +871,12 @@ void SceneMain::createParticle(VECTOR pos, int color)
 			particle->start(VECTOR(pos), color);
 		}
 
-
 		//パーティクルの数が32個を超えたら処理を終える
 		if (particleCount >= kParticleDistributedValue)
 		{
 			break;
 		}
 	}
-	
-
-
 }
 
 /// <summary>
@@ -783,7 +885,7 @@ void SceneMain::createParticle(VECTOR pos, int color)
 /// <param name="pos">位置</param>
 /// <param name="color">色</param>
 /// <param name="num">番号指定</param>
-void SceneMain::createParticle3D(VECTOR pos, int color, int num)
+void SceneMain::CreateParticle3D(VECTOR pos, int num)
 {
 
 	// モデルのスケール
@@ -791,6 +893,9 @@ void SceneMain::createParticle3D(VECTOR pos, int color, int num)
 
 	// パーティクルの分散量
 	int particleDistributedValue = 0;
+
+	// カラー指定
+	VECTOR color = VGet(0, 0, 0);
 
 
 	// サイズを変更する
@@ -814,6 +919,10 @@ void SceneMain::createParticle3D(VECTOR pos, int color, int num)
 		// パーティクルの分散量指定
 		particleDistributedValue = kBunkerBreakParticleDistributedValue;
 
+		// カラー指定
+		color = VGet(Bunker::kCollarR, Bunker::kCollarG, Bunker::kCollarB);
+
+
 		break;
 
 	case 2:// プレイヤーがやられた場合
@@ -826,7 +935,6 @@ void SceneMain::createParticle3D(VECTOR pos, int color, int num)
 
 		break;
 	}
-
 
 
 	// パーティクルの数を数える
@@ -853,6 +961,24 @@ void SceneMain::createParticle3D(VECTOR pos, int color, int num)
 	}
 }
 
+void SceneMain::GameOverCount()
+{
+	// プレイヤーのHPが0以外ならここで処理を終了する
+	if (m_playerRemaining != 0)return;
+
+	// プレイヤーがやられたときm_gameOverCountを減らし、0になったらゲームオーバー処理へ移行する
+	if (!m_isAlivePlayer)
+	{
+		m_gameOverCount--;
+
+		if (m_gameOverCount <= 0)
+		{
+			m_isGameOver = true;
+		}
+	}
+
+}
+
 bool SceneMain::CreateShotPlayer(VECTOR pos)
 {
 	// すべてのショットをみる
@@ -871,16 +997,38 @@ bool SceneMain::CreateShotPlayer(VECTOR pos)
 	return false;
 }
 
-bool SceneMain::CreateShotEnemy(VECTOR pos)
+bool SceneMain::CreateShotEnemy(VECTOR pos,int enemyNum)
 {
+	// ショットカラー
+	VECTOR shotColor = VGet(0, 0, 0);
+
 	// すべてのショットをみる
-	for (auto& invertShot : m_pInvertShot)
+	for (int i = 0; i < kEnemyShotMaxNumber; i++)
 	{
 		// 存在していないショットを探す
-		if (!invertShot->isExist())
+		if (!m_pInvertShot[i]->isExist())
 		{
+
+			// 色を与える
+			switch (enemyNum)
+			{
+			case 0:
+				shotColor = VGet(InvertShot::kShot1CollarR, InvertShot::kShot1CollarG, InvertShot::kShot1CollarB);
+
+				break;
+
+			case 1:
+
+				shotColor = VGet(InvertShot::kShot2CollarR, InvertShot::kShot2CollarG, InvertShot::kShot2CollarB);
+
+				break;
+			}
+
+			// 色を送る
+			m_pInvertShot[i]->setColor(shotColor);
+
 			// ショットを打つ
-			invertShot->start(VECTOR(pos));
+			m_pInvertShot[i]->start(VECTOR(pos));
 
 			return true;
 		}
@@ -910,7 +1058,7 @@ void SceneMain::EnemyToShotCollision()
 					float dy = shot->getPos().y - enemy->getPos().y;
 					float dr = dx * dx + dy * dy;// A²＝B²＋C²
 
-					float ar = Shot::kShotSize + Enemy::kCircleSize;// 当たり判定の大きさ
+					float ar = Shot::kShotSize + EnemySet::kCircleSize;// 当たり判定の大きさ
 					float dl = ar * ar;
 
 
@@ -940,10 +1088,20 @@ void SceneMain::EnemyToShotCollision()
 							EnemyExistProcess();
 
 							// パーティクル処理を呼び出す
-							createParticle(enemy->getPos(),0);
+							CreateParticle(enemy->getPos(),enemy->enemyNum());
 
 							// スコアを増やす
-							m_score += kAddedPoints;
+							switch (enemy->enemyNum())
+							{
+							case 0:
+								m_score += EnemySet::kEnemy1KillScore;
+								break;
+							case 1:
+								m_score += EnemySet::kEnemy2KillScore;
+								break;
+							}
+
+			
 
 							m_pMainUI->getScore(m_score);
 						}
@@ -1106,7 +1264,7 @@ void SceneMain::ShotToInvertShotCollision()
 							invertShot->setExist(false);
 
 							// パーティクルを発生させる
-							createParticle3D(shot->getPos(),0,0);
+							CreateParticle3D(shot->getPos(),0);
 						}
 					}
 				}

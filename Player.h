@@ -4,11 +4,7 @@
 class SceneMain;
 class Player
 {
-public:
-	// 半球サイズ
-	static constexpr float kCircleSize = 3.0f;
 
-	
 public:
 	Player();
 	virtual~Player();
@@ -27,6 +23,7 @@ public:
 	// 当たり判定を取得
 	void getIsHit(bool isHit) { m_isHit = isHit; }
 
+
 public:
 	// 移動処理
 	void Move();
@@ -44,6 +41,7 @@ public:
 	void ResetPos();
 
 private:
+
 
 	// 3Dモデルハンドル
 	int m_modeleHandle;

@@ -10,7 +10,7 @@ public:
 	void update();
 	void draw();
 
-	void start(VECTOR pos, int color);
+	void start(VECTOR pos, VECTOR color);
 
 	// 存在するか
 	bool isExist() const { return m_isExist; }
@@ -40,7 +40,7 @@ private:
 	VECTOR	m_vec;
 
 	// 色
-	int		m_color;
+	VECTOR	m_color;
 
 	// グラフィックハンドル
 	int		m_handle;

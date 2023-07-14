@@ -7,6 +7,14 @@ class Bunker
 public:
 	// 半球サイズ
 	static constexpr float kCircleSize = 2.0f;
+
+	// カラーR
+	static constexpr float kCollarR = 0.0f;
+	// カラーG
+	static constexpr float kCollarG = 1.0f;
+	// カラーB
+	static constexpr float kCollarB = 0.0f;
+
 public:
 	Bunker();
 	virtual ~Bunker();

@@ -1,5 +1,4 @@
 #include "BackGround.h"
-#include "game.h"
 #include "Enemy.h"
 
 
@@ -13,6 +12,7 @@ BackGround::~BackGround()
 
 void BackGround::init()
 {
+	
 }
 
 void BackGround::update()
@@ -28,11 +28,11 @@ void BackGround::draw()
 	DrawLine3D(VGet(0, 0, -lineHeightSize), VGet(0, 0, lineHeightSize), GetColor(0, 0, 255));
 
 	// ラインの縦幅
-	float lineWidthPos = Enemy::kMovePosZ;
+	float lineWidthPos = EnemySet::kMovePosZ;
 	// ラインの横幅
-	lineHeightSize = (Enemy::kLimitMove * Enemy::kMovePosX) * 2.5;
+	lineHeightSize = (EnemySet::kLimitMove * EnemySet::kMovePosX) * 2.5;
 	// ラインの列（0も含むので+１する）
-	float lineArray = (Enemy::kInitPosZ / lineWidthPos) + 1;
+	float lineArray = (EnemySet::kInitPosZ / lineWidthPos) + 1;
 
 
 

@@ -20,6 +20,18 @@ namespace
 
 	// 揺らす時間
 	constexpr int kShakeFrame = SceneMain::kFreezeFrameMaxCount;
+
+	// カメラの数
+	constexpr int kCamaraNum = 4;
+
+	// カメラ1の角度
+	constexpr int kCamera1Degree = 45;
+	// カメラ2の角度
+	constexpr int kCamera2Degree = 20;
+	// カメラ3の角度
+	constexpr int kCamera3Degree = 0;
+	// カメラ4の角度
+	constexpr int kCamera4Degree = 57;
 }
 
 
@@ -44,7 +56,8 @@ void Camera::init()
 	m_pos = VGet(0.0f, 0.0f, 0.0f);
 
 	// カメラの回転初期値
-	m_cameraRot = kCameraRot;
+	m_cameraRot = kCamera1Degree * (DX_PI / 180);
+
 }
 
 void Camera::update()
@@ -52,66 +65,66 @@ void Camera::update()
 	// プレイヤーの位置を入れる
 	VECTOR playerPos = m_pPlayer->getPos();
 
-	// カメラの回転を変更する
+	// カメラを変更する
 	if (Pad::isTrigger(PAD_INPUT_2))
 	{
 		m_cameraNum++;
 
-		// 0と1しか使わない
-		if (m_cameraNum == 4)
+		// m_cameraNumの値をループさせる
+		if (m_cameraNum % kCamaraNum == 0)
 		{
 			m_cameraNum = 0;
 		}
+		
+		switch (m_cameraNum)
+		{
+		case 0:
+			// ラジアン変換
+			m_cameraRot = kCamera1Degree * (DX_PI / 180);
+			break;
+		case 1:
+			// ラジアン変換
+			m_cameraRot = kCamera2Degree * (DX_PI / 180);
+			break;
+		case 2:
+			// ラジアン変換
+			m_cameraRot = kCamera3Degree * (DX_PI / 180);
+			break;
+		case 3:
+			// ラジアン変換
+			m_cameraRot = kCamera4Degree * (DX_PI / 180);
+			break;
+		}
+
 	}
 
 
-	VECTOR cameraPos = {};
 
 	if (m_cameraNum == 0)
 	{
-		m_cameraRot = kCameraRot;
-
-		// カメラの回転位置
-		cameraPos = VGet(playerPos.x, playerPos.y + 50, playerPos.z-20);
+		// カメラの位置
+		m_pos = VGet(playerPos.x, playerPos.y + 50, playerPos.z-20);
 
 	}
 	else if (m_cameraNum == 1)
 	{
-		m_cameraRot = 0.2f;
-
-		// カメラの回転位置
-		cameraPos = VGet(playerPos.x, playerPos.y+10, playerPos.z-20);
+		// カメラの位置
+		m_pos = VGet(playerPos.x, playerPos.y+10, playerPos.z-20);
 	}
 	else if (m_cameraNum == 2)
 	{
-		m_cameraRot = 0.0f;
 
-		// カメラの回転位置
-		cameraPos = VGet(playerPos.x, playerPos.y+5, playerPos.z);
+		// カメラの位置
+		m_pos = VGet(playerPos.x, playerPos.y+5, playerPos.z);
 	}
 	else if (m_cameraNum == 3)
 	{
-		m_cameraRot = 1.0f;
+		//m_cameraRot = 1.0f;
 
 		// カメラの回転位置
-		cameraPos = VGet(0.0f,  100.0f, -10.0f);
+		m_pos = VGet(0.0f,  100.0f, -10.0f);
 	}
 
-	m_pos = cameraPos;
-
-
-	
-
-
-
-	//// カメラ位置の更新
-	//m_pos = VGet(playerPos.x, playerPos.y + kCameraPosY, kCameraZoom+ playerPos.z);
-
-	//// カメラの注視点( 見ている座標 )
-	//VECTOR targetPos = VGet(m_pos.x, m_pos.y, 0.0f);
-
-	//// カメラ位置
-	//SetCameraPositionAndTarget_UpVecY(m_pos, targetPos);
 }
 
 void Camera::draw()

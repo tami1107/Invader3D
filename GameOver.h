@@ -10,7 +10,7 @@ public:
 	virtual~GameOver();
 
 	// クラスポインタの取得
-	void setSceneMain(SceneMain* sceneMain) { m_pSceneMain = sceneMain; }
+	void setSceneMainPointer(SceneMain* sceneMain) { m_pSceneMain = sceneMain; }
 
 
 	void init();

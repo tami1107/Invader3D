@@ -2,8 +2,7 @@
 #include "SceneBase.h"
 #include <memory>
 #include "game.h"
-#include "Enemy.h"
-
+#include "Setting.h"
 
 class Player;
 class Camera;
@@ -16,6 +15,7 @@ class MainUI;
 class BackGround;
 class Particle;
 class Particle3D;
+class Pause;
 class SceneMain : public SceneBase
 {
 public:
@@ -40,8 +40,7 @@ public:
 	// プレイヤーの残機
 	static constexpr int kPlayerRemaining = 3;
 
-	// スコア加点
-	static constexpr int kAddedPoints = 10;
+
 
 	// パーティクルの最大数
 	static constexpr int kParticleMaxNum = 128;
@@ -67,7 +66,8 @@ public:
 	// リセットフラグ
 	void getIsResetFlag(bool isReset) { m_isReset = isReset; }
 
-
+	// ポーズするかどうかを取得する
+	void getIsPause(bool IsPause) { m_isPause = IsPause; }
 
 public:
 
@@ -90,10 +90,13 @@ public:
 	void EnemyExistProcess();
 
 	// パーティクル生成
-	void createParticle(VECTOR pos, int color);
+	void CreateParticle(VECTOR pos, int colorNum);
 
 	// パーティクル生成3D
-	void createParticle3D(VECTOR pos, int color, int num);
+	void CreateParticle3D(VECTOR pos, int num);
+
+	// ゲームオーバーになるまでのカウント処理
+	void GameOverCount();
 
 
 
@@ -101,7 +104,7 @@ public:
 	bool CreateShotPlayer(VECTOR pos);
 
 	// エネミーがショットを撃つ
-	bool CreateShotEnemy(VECTOR pos);
+	bool CreateShotEnemy(VECTOR pos, int enemyNum);
 
 	// エネミーとショットのあたり判定
 	void EnemyToShotCollision();
@@ -124,14 +127,9 @@ private:
 	bool m_isFreezeFrame;
 
 
-	// エネミーのスライドカウント
-	int m_enemySlideCount;
+	// エネミーレベル
+	int m_enemyLv;
 
-	// エネミーの列カウント
-	int m_enemyLineCount;
-
-	// エネミー行
-	int m_enemyLine;
 
 	// エネミー生成フラグ
 	bool m_isEnemyCreate;
@@ -155,7 +153,7 @@ private:
 	int m_isReset;
 
 	// エネミーレベル
-	int m_enemyLevel;
+	int m_enemyLineNow;
 
 	// プレイヤー残機
 	int m_playerRemaining;
@@ -164,7 +162,7 @@ private:
 	int m_score;
 
 	// エネミーのグラフィック
-	int m_enemyGraphic[Enemy::kEnemyGraphicNum];
+	int m_enemyGraphic[EnemySet::kEnemyGraphicNum];
 
 	// ショットのグラフィック
 	int m_shotGraphic;
@@ -179,6 +177,18 @@ private:
 	// トーチカのグラフィック
 	int m_bunkerGraphic[kBunkerMaxNum];
 
+	// エネミー番号
+	int m_enemyNum[kEnemyMaxNum];
+
+	// ゲームオーバーになるまでのカウント
+	int m_gameOverCount;
+
+	// プレイヤーが生きているかどうか
+	int m_isAlivePlayer;
+
+	// ポーズするかどうかのフラグ
+	bool m_isPause;
+
 	// クラスポインタ
 	std::shared_ptr<Player>m_pPlayer;
 	std::shared_ptr<Camera>m_pCamera;
@@ -191,4 +201,5 @@ private:
 	std::shared_ptr<BackGround>m_pBackGround;
 	std::shared_ptr<Particle>m_pParticle[kParticleMaxNum];
 	std::shared_ptr<Particle3D>m_pParticle3D[kParticleMaxNum];
+	std::shared_ptr<Pause>m_pPause;
 };

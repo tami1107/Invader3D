@@ -15,6 +15,8 @@ namespace
 
 	// ショットモデルのスケール
 	constexpr float kModeleScale = 1.5f;
+
+
 }
 
 
@@ -46,18 +48,25 @@ void Shot::start(VECTOR pos)
 
 	// ショットを撃ち始めの位置を変更する
 	m_pos.z += kShotBegin;
+
+	// 位置情報をモデルに入れる
+	MV1SetPosition(m_modeleHandle, m_pos);
 }
 
 void Shot::init()
 {
 	// ３Ｄモデルのスケール変更
 	MV1SetScale(m_modeleHandle, VGet(kModeleScale, kModeleScale, kModeleScale));
+
+	// 色設定
+	MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(kShotCollarR, kShotCollarG, kShotCollarB, 1.0f));
 }
 
 void Shot::update()
 {
 	// 弾が存在しなかった場合、ここで処理を終了する
 	if (!m_isExist) return;
+	
 
 	// 弾幕の軌道
 	BulletTrajectory();
@@ -71,11 +80,15 @@ void Shot::update()
 
 void Shot::draw()
 {
+
+
 	// 弾が存在しなかった場合、ここで処理を終了する
 	if (!m_isExist) return;
 
+
 	// ショットの描画
 	MV1DrawModel(m_modeleHandle);
+
 
 	// あたり判定の表示
 #if false

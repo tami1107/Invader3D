@@ -1,4 +1,6 @@
 #pragma once
+#include "game.h"
+
 class BackGround
 {
 public:
@@ -10,6 +12,7 @@ public:
 	void draw();
 
 private:
+
 
 };
 

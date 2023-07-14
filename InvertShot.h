@@ -9,6 +9,21 @@ public:
 
 	// ショットのサイズ
 	static constexpr float kShotSize = 1.1f;
+
+	// ショット1カラーR
+	static constexpr float kShot1CollarR = 0;
+	// ショット1カラーG
+	static constexpr float kShot1CollarG = 1.0;
+	// ショット1カラーB
+	static constexpr float kShot1CollarB = 0;
+
+	// ショット2カラーR
+	static constexpr float kShot2CollarR = 0;
+	// ショット2カラーG
+	static constexpr float kShot2CollarG = 0;
+	// ショット2カラーB
+	static constexpr float kShot2CollarB = 1.0;
+
 public:
 	InvertShot();
 	virtual ~InvertShot();
@@ -38,6 +53,8 @@ public:
 	// グラフィックを受け取る
 	void getShotGraphic(int handle) { m_modeleHandle = handle; }
 
+	// カラー取得
+	void setColor(VECTOR color) { m_color = color; }
 public:
 
 	// 弾幕の軌道
@@ -59,6 +76,9 @@ private:
 
 	// 表示位置
 	VECTOR m_pos;
+
+	// カラー
+	VECTOR m_color;
 
 	// クラスポインタ
 	std::shared_ptr<Player>m_pPlayer;

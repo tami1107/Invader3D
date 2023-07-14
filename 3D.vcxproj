@@ -150,6 +150,7 @@
     <ClCompile Include="Pad.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Particle3D.cpp" />
+    <ClCompile Include="Pause.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SceneBase.cpp" />
     <ClCompile Include="SceneMain.cpp" />
@@ -170,11 +171,13 @@
     <ClInclude Include="Pad.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Particle3D.h" />
+    <ClInclude Include="Pause.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="SceneBase.h" />
     <ClInclude Include="SceneMain.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneTitle.h" />
+    <ClInclude Include="Setting.h" />
     <ClInclude Include="Shot.h" />
     <ClInclude Include="Vec2.h" />
   </ItemGroup>
