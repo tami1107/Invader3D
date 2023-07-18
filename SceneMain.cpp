@@ -19,22 +19,20 @@
 namespace
 {
 	
-
-
 	// ショットモデルグラフィック
-	const char* const kShotGraphicFileName = "data/modele/cube.mv1";
+	const char* const kShotGraphicFileName = "data/model/cube.mv1";
 
 	// エネミーショットモデルグラフィック
-	const char* const kEnemyShotGraphicFileName = "data/modele/cube.mv1";
+	const char* const kEnemyShotGraphicFileName = "data/model/cube.mv1";
 
 	// パーティクルのグラフィックファイル名
 	const char* const kParticleGraphicFileName = "data/particle.png";
 
 	// トーチカのモデルグラフィックファイル名
-	const char* const kBunkerGraphicFileName = "data/modele/cube.mv1";
+	const char* const kBunkerGraphicFileName = "data/model/cube.mv1";
 
 	// 3Dパーティクルのモデルグラフィックファイル名
-	const char* const kParticleModelFileName = "data/modele/cube.mv1";
+	const char* const kParticleModelFileName = "data/model/cube.mv1";
 
 
 	// レベルが上がるごとにスピードを上げる

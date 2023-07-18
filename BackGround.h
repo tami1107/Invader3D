@@ -11,8 +11,24 @@ public:
 	void update();
 	void draw();
 
-private:
+public:
 
+	// スカイドーム回転
+	void RotSkyDome();
+
+
+	// ライン描画
+	void DrawLine();
+	// スカイドーム描画
+	void DrawSkyDome();
+
+
+private:
+	// モデルハンドル
+	int m_modelHandle;
+
+	// 角度
+	float m_degree;
 
 };
 

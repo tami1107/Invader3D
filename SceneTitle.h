@@ -1,8 +1,12 @@
 #pragma once
 #include "SceneBase.h"
+#include "game.h"
+
 
 class SceneTitle : public SceneBase
 {
+
+
 public:
 	SceneTitle();
 
@@ -16,7 +20,21 @@ public:
 	virtual void draw() override;
 
 	virtual bool isEnd() { return m_isEnd; }
+
+public:
+
+
+
 private:
 
 	bool m_isEnd;
+
+	// モデルハンドル
+	int m_modelHandle[3];
+
+	// テキストの移動位置
+	//VECTOR m_textMove[2];
+
+
+
 };
