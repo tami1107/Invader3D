@@ -4,7 +4,7 @@
 namespace
 {
 	// モデルのグラフィックファイル名
-	const char* const kModelGraphicFileName = "data/model/skyDome/Dome_Y301.mv1";
+	const char* const kModelGraphicFileName = "data/model/Dome_Y301.mv1";
 
 	// 増えていく角度の値
 	constexpr float kDegreeAdd = 0.02;
@@ -23,14 +23,22 @@ BackGround::~BackGround()
 	MV1DeleteModel(m_modelHandle);
 }
 
-void BackGround::init()
+void BackGround::init(int num)
 {
 	// スカイドームのモデルを入れる
 	m_modelHandle = MV1LoadModel(kModelGraphicFileName);
 
-	
-	// スカイドームの中心位置
-	MV1SetPosition(m_modelHandle, VGet(0, 200, 0));
+	switch (num)
+	{
+	case 0:
+		// スカイドームの中心位置
+		MV1SetPosition(m_modelHandle, VGet(0, 0, -200));
+		break;
+	case 1:
+		// スカイドームの中心位置
+		MV1SetPosition(m_modelHandle, VGet(0, 200, 0));
+		break;
+	}
 
 }
 

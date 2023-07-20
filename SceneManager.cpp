@@ -5,6 +5,7 @@
 #include "SceneMain.h"
 #include "Pad.h"
 
+
 SceneManager::SceneManager()
 {
 	m_pScene = nullptr;
@@ -16,7 +17,7 @@ SceneManager::~SceneManager()
 
 void SceneManager::init()
 {
-	m_pScene = new SceneTitle;
+	m_pScene = new SceneMain;
 	m_pScene->init();
 }
 
@@ -36,6 +37,7 @@ void SceneManager::update()
 
 	// パッド処理のアップデート
 	Pad::update();
+
 
 	SceneBase* pScene = m_pScene->update();
 	if (pScene != m_pScene)

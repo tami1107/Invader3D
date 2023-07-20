@@ -249,7 +249,7 @@ void Enemy::Move()
 			// ゲームオーバーするかどうか
 			if (m_pos.z <= EnemySet::kGameOverPosZ)
 			{
-				m_pSceneMain->getIsGameOverFlag(true);
+				m_pSceneMain->setIsGameOverFlag(true);
 			}
 
 			return;

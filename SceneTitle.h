@@ -1,11 +1,11 @@
 #pragma once
 #include "SceneBase.h"
 #include "game.h"
+#include <memory>
 
-
+class BackGround;
 class SceneTitle : public SceneBase
 {
-
 
 public:
 	SceneTitle();
@@ -30,11 +30,17 @@ private:
 	bool m_isEnd;
 
 	// モデルハンドル
-	int m_modelHandle[3];
+	int m_modelHandle;
 
-	// テキストの移動位置
-	//VECTOR m_textMove[2];
+	// サイン
+	float sinRate;
 
+	// タイトルテキストの位置
+	VECTOR m_titlePos;
 
+	// ライトの位置
+	VECTOR m_lightPos;
 
+	// クラスポインタ
+	std::shared_ptr<BackGround>m_pBackGround;
 };

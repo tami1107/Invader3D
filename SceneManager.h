@@ -1,7 +1,10 @@
 #pragma once
 
 #include "SceneBase.h"
+#include <memory>
 
+
+class BackGround;
 class SceneManager
 {
 public:

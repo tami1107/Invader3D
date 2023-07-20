@@ -7,7 +7,7 @@ public:
 	BackGround();
 	virtual ~BackGround();
 
-	void init();
+	void init(int num);
 	void update();
 	void draw();
 

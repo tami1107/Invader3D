@@ -89,6 +89,7 @@ SceneMain::SceneMain():
 	m_gameOverCount(0),
 	m_isAlivePlayer(true),
 	m_isPause(false),
+	m_isTurnTitle(false),
 	m_pPlayer(std::make_shared<Player>()),
 	m_pCamera(std::make_shared<Camera>()),
 	m_pGameOver(std::make_shared<GameOver>()),
@@ -267,7 +268,7 @@ void SceneMain::init()
 	m_pCamera->init();
 	m_pGameOver->init();
 	m_pMainUI->init();
-	m_pBackGround->init();
+	m_pBackGround->init(1);
 	m_pPause->init();
 
 	// ショットにグラフィックを送る
@@ -308,6 +309,9 @@ void SceneMain::init()
 	// ポーズしていないのでfalse
 	m_isPause = false;
 
+	// タイトルフラグが立っていないのでfalse
+	m_isTurnTitle = false;
+
 	// グラフィック削除
 	MV1DeleteModel(particleModel);
 	
@@ -337,6 +341,13 @@ SceneBase* SceneMain::update()
 
 
 	m_pPause->update();
+
+	// タイトルに戻る
+	if (m_isTurnTitle)
+	{
+		return (new SceneTitle);
+	}
+
 	// ポーズしていたらこの下の処理を行わない
 	if (m_isPause)return this;
 
@@ -393,11 +404,8 @@ SceneBase* SceneMain::update()
 	// ゲームオーバーになるまでのカウント処理
 	GameOverCount();
 
-	//// タイトルに戻る
-	//if (Pad::isTrigger(PAD_INPUT_1))
-	//{
-	//	return (new SceneTitle);
-	//}
+	
+
 	// エネミーをすべて消す
 #if true
 

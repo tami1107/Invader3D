@@ -39,8 +39,8 @@ void GameOver::update()
 	// ゲームオーバーフラグをfalseする
 	if (Pad::isTrigger(PAD_INPUT_10))
 	{
-		m_pSceneMain->getIsGameOverFlag(false);
-		m_pSceneMain->getIsResetFlag(true);
+		m_pSceneMain->setIsGameOverFlag(false);
+		m_pSceneMain->setIsResetFlag(true);
 	}
 }
 

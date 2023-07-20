@@ -61,13 +61,16 @@ public:
 
 public:
 	// ゲームオーバーフラグの取得
-	void getIsGameOverFlag(bool isGameOver) { m_isGameOver = isGameOver; }
+	void setIsGameOverFlag(bool isGameOver) { m_isGameOver = isGameOver; }
 
 	// リセットフラグ
-	void getIsResetFlag(bool isReset) { m_isReset = isReset; }
+	void setIsResetFlag(bool isReset) { m_isReset = isReset; }
 
 	// ポーズするかどうかを取得する
-	void getIsPause(bool IsPause) { m_isPause = IsPause; }
+	void setIsPause(bool isPause) { m_isPause = isPause; }
+
+	// タイトルに戻るかどうかのフラグを取得する
+	void setIsTurnTitle(bool isTurnTitle) { m_isTurnTitle = isTurnTitle; }
 
 public:
 
@@ -97,8 +100,6 @@ public:
 
 	// ゲームオーバーになるまでのカウント処理
 	void GameOverCount();
-
-
 
 	// プレイヤーがショットを撃つ
 	bool CreateShotPlayer(VECTOR pos);
@@ -188,6 +189,11 @@ private:
 
 	// ポーズするかどうかのフラグ
 	bool m_isPause;
+
+	// タイトルに戻るかどうかのフラグ
+	bool m_isTurnTitle;
+
+
 
 	// クラスポインタ
 	std::shared_ptr<Player>m_pPlayer;
