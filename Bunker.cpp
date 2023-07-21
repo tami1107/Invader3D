@@ -14,6 +14,12 @@ namespace
 
 	// モデルのスケール
 	constexpr float kModeleScale = 5.5f;
+
+
+	// 透明度(1.0fが不透明、0.0fが透明)
+	constexpr float kAlphaValue = 0.5f;
+
+
 }
 
 Bunker::Bunker():
@@ -63,6 +69,9 @@ void Bunker::init(int savePosX)
 
 	// 色設定
 	MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(kCollarR, kCollarG, kCollarB, 1.0f));
+
+	// ３Ｄモデルの不透明度
+	MV1SetOpacityRate(m_modeleHandle, kAlphaValue);
 }
 
 void Bunker::update()
@@ -77,8 +86,12 @@ void Bunker::draw()
 {
 	if (!m_isExist)return;
 
+	
+
 	// モデルの描画
 	MV1DrawModel(m_modeleHandle);
+
+
 
 #if true
 	// ダメージを受けるたびに薄くする

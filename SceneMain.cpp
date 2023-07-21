@@ -38,6 +38,9 @@ namespace
 	// レベルが上がるごとにスピードを上げる
 	constexpr int kEnemyLvMoveSpeed = 10;
 
+	// エネミーの透明度（255が不透明）
+	constexpr int kEnemyAlphaValue = 220;
+
 
 
 	// トーチカの横距離
@@ -440,11 +443,6 @@ void SceneMain::draw()
 	m_pCamera->draw();
 	m_pMainUI->draw();
 	m_pBackGround->draw();
-
-	for (auto& enemy : m_pEnemy)
-	{
-		enemy->draw();
-	}
 	for (auto shot : m_pShot)
 	{
 		shot->draw();
@@ -457,14 +455,27 @@ void SceneMain::draw()
 	{
 		bunker->draw();
 	}
-	for (auto& particle : m_pParticle)
-	{
-		particle->draw();
-	}
 	for (auto& particle3D : m_pParticle3D)
 	{
 		particle3D->draw();
 	}
+
+	// 透明にして表示する
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, kEnemyAlphaValue);
+	
+	for (auto& enemy : m_pEnemy)
+	{
+		enemy->draw();
+	}
+
+	for (auto& particle : m_pParticle)
+	{
+		particle->draw();
+	}
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+
 
 	// プレイヤーが生きていたら表示する
 	if (m_isAlivePlayer)
