@@ -483,6 +483,7 @@ void SceneMain::draw()
 		m_pPlayer->draw();
 	}
 
+#if false
 
 	DrawString(0, 0, "メイン画面", GetColor(255, 255, 255));
 
@@ -491,6 +492,7 @@ void SceneMain::draw()
 
 	DrawFormatString(0, 5 * 15, 0xffffff, "Maim playerHP : %d", m_playerRemaining);
 
+#endif
 
 	m_pPause->draw();
 }
@@ -1119,8 +1121,8 @@ void SceneMain::EnemyToShotCollision()
 							}
 
 			
-
-							m_pMainUI->getScore(m_score);
+							// スコアを送る
+							m_pMainUI->ScoreArray(m_score);
 						}
 					}
 				}

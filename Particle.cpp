@@ -80,7 +80,7 @@ void Particle::start(VECTOR pos, VECTOR color)
 
 	
 	m_vec.x = static_cast<float>(GetRand(6) - 3);
-	m_vec.y = static_cast<float>(GetRand(3)-1);
+	m_vec.y = static_cast<float>(GetRand(2)-1);
 	m_vec.z = static_cast<float>(GetRand(6));
 
 	m_color = color;

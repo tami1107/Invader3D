@@ -4,6 +4,10 @@ class SceneMain;
 class MainUI
 {
 public:
+	
+	static constexpr int kScoreMaxNum = 4;
+
+public:
 	MainUI();
 	virtual~MainUI();
 
@@ -20,9 +24,16 @@ public:
 
 	void getPlayerHp(int playerHp) { m_playerHp = playerHp; }
 	void getEnemyLv(int enemyLv) { m_enemyLv = enemyLv; }
-	void getScore(int score) { m_score = score; }
+
+public:
+	// スコアを配列に変換
+	void ScoreArray(int score);
 
 private:
+	// フォントハンドル
+	int m_fontHandle;
+
+
 	// プレイヤーのHP
 	int m_playerHp;
 	// エネミーのレベル
@@ -30,6 +41,9 @@ private:
 	// スコア
 	int m_score;
 
+
+	// スコアの配列
+	int m_scoreNum[kScoreMaxNum];
 
 	// クラスポインタ
 	SceneMain* m_pSceneMain;
