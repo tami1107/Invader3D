@@ -23,17 +23,28 @@ public:
 
 public:
 
+	// モデルの移動処理
+	void ModelMove();
 
 
 private:
 
 	bool m_isEnd;
 
+	// フォントハンドル
+	int m_fontHandle;
+
+	// テキストのサイン
+	float m_textSin;
+
+	// フェード値
+	float m_fadeValue;
+
 	// モデルハンドル
 	int m_modelHandle;
 
 	// サイン
-	float sinRate;
+	float m_sinRate;
 
 	// タイトルテキストの位置
 	VECTOR m_titlePos;

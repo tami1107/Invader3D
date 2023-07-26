@@ -5,6 +5,21 @@
 
 namespace
 {
+	// ハートのグラフィックのファイル名
+	const char* const kGraphicFileName = "data/heart.png";
+
+	// グラフィックのサイズ
+	constexpr float kGraphicSize = 0.5;
+
+	// グラフィックの位置
+	constexpr int kGraphicPosX = 100;
+	constexpr int kGraphicPosY = 100;
+
+	// グラフィック同士の距離
+	constexpr int kGraphicDistance = 30;
+
+
+
 	// 文字フォント
 	const char* const kTextFontName = "NULL";
 
@@ -21,6 +36,7 @@ namespace
 
 
 MainUI::MainUI():
+	m_graphicHandle(-1),
 	m_fontHandle(-1),
 	m_playerHp(0),
 	m_enemyLv(0),
@@ -39,12 +55,19 @@ MainUI::~MainUI()
 	m_pSceneMain = nullptr;
 	delete m_pSceneMain;
 
+	// グラフィックの削除
+	DeleteGraph(m_graphicHandle);
+
 	// 作成したフォントデータを削除する
 	DeleteFontToHandle(m_fontHandle);
 }
 
 void MainUI::init()
 {
+
+	// グラフィックの挿入
+	m_graphicHandle = LoadGraph(kGraphicFileName);
+
 	// フォントの挿入・設定
 	m_fontHandle = CreateFontToHandle(kTextFontName, kTextFontSize, 3);
 
@@ -70,15 +93,32 @@ void MainUI::update()
 
 void MainUI::draw()
 {
-
-	for (int i = 0; i < kScoreMaxNum; i++)
+	// ライフ
 	{
+		for (int i = 0; i < m_playerHp; i++)
+		{
 
-		DrawFormatStringToHandle(kScorePosX + (kScoreDistance * i), kScorePosY,
-			0xff0000, m_fontHandle, "%d", m_scoreNum[i]);
+			DrawRotaGraph(kGraphicPosX + (kGraphicDistance * i), kGraphicPosY,
+				kGraphicSize, 0.0, m_graphicHandle, true);
 
+		}
 	}
 
+
+
+
+
+
+	// スコア
+	{
+		for (int i = 0; i < kScoreMaxNum; i++)
+		{
+
+			DrawFormatStringToHandle(kScorePosX + (kScoreDistance * i), kScorePosY,
+				0xff0000, m_fontHandle, "%d", m_scoreNum[i]);
+
+		}
+	}
 
 #if true
 

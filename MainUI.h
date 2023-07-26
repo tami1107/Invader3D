@@ -5,7 +5,7 @@ class MainUI
 {
 public:
 	
-	static constexpr int kScoreMaxNum = 4;
+	static constexpr int kScoreMaxNum = 6;
 
 public:
 	MainUI();
@@ -30,6 +30,11 @@ public:
 	void ScoreArray(int score);
 
 private:
+	// グラフィックハンドル
+	int m_graphicHandle;
+
+
+
 	// フォントハンドル
 	int m_fontHandle;
 
