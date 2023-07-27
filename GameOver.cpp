@@ -88,7 +88,7 @@ void GameOver::draw()
 	DrawStringToHandle(kTextInitPosX + slide, (kTextInitPosY + slide) + m_posY, "GameOver",
 		0x696969, m_fontHandle);
 
-	// テキスト
+	// tekisuto 
 	DrawStringToHandle(kTextInitPosX, kTextInitPosY + m_posY, "GameOver",
 		0xffffff, m_fontHandle);
 
