@@ -71,7 +71,7 @@ namespace EnemySet
 	constexpr float kEnemyMoveLevel1 = 0.5;	// エネミーの移動レベル1（エネミーが何割以下で速度を上げるのか）
 	constexpr int kEnemyMoveInterval1 = 10;	// インターバル減少値レベル1
 	constexpr float kEnemyMoveLevel2 = 0.2;	// エネミーの移動レベル2（何割以下で速度を上げるのか）
-	constexpr int kEnemyMoveInterva2 = 30;	// インターバル減少値レベル2
+	constexpr int kEnemyMoveInterva2 = 20;	// インターバル減少値レベル2
 
 
 	// エネミーに下から何列目まで進ませるか（それ以上進むことはできない）
@@ -121,6 +121,8 @@ namespace PlayerSet
 	// モデルのスケール
 	static constexpr float kModeleScale = 2.5f;
 
+	// 透明度(1.0fが不透明、0.0fが透明)
+	static constexpr float kAlphaValue = 1.0f;
 
 	//////////////////////////////////////////
 	//				カラー関連				//

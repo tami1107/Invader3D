@@ -18,6 +18,7 @@ Particle3D::Particle3D() :
 	m_modeleHandle(-1),
 	m_isExist(false)
 {
+
 }
 
 Particle3D::~Particle3D()
@@ -25,6 +26,8 @@ Particle3D::~Particle3D()
 	// モデルの削除
 	MV1DeleteModel(m_modeleHandle);
 }
+
+
 
 
 void Particle3D::update()
@@ -55,7 +58,7 @@ void Particle3D::draw()
 
 }
 
-void Particle3D::start(VECTOR pos, VECTOR color, float modeleScale)
+void Particle3D::start(VECTOR pos, VECTOR color, float modeleScale, float alphaValue)
 {
 	m_isExist = true;
 	m_pos = pos;
@@ -69,6 +72,9 @@ void Particle3D::start(VECTOR pos, VECTOR color, float modeleScale)
 
 	// 色設定
 	MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(color.x, color.y, color.z, 1.0f));
+
+	// ３Ｄモデルの不透明度
+	MV1SetOpacityRate(m_modeleHandle, alphaValue);
 }
 
 

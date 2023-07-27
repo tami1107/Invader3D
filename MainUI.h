@@ -4,8 +4,9 @@ class SceneMain;
 class MainUI
 {
 public:
-	
+	// スコアの最大桁数
 	static constexpr int kScoreMaxNum = 6;
+	
 
 public:
 	MainUI();
@@ -31,8 +32,7 @@ public:
 
 private:
 	// グラフィックハンドル
-	int m_graphicHandle;
-
+	int m_graphicHandle[2];
 
 
 	// フォントハンドル

@@ -15,6 +15,8 @@ public:
 	// カラーB
 	static constexpr float kCollarB = 0.0f;
 
+	// 透明度(1.0fが不透明、0.0fが透明)
+	static constexpr float kAlphaValue = 0.5f;
 public:
 	Bunker();
 	virtual ~Bunker();

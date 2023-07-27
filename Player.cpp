@@ -34,6 +34,9 @@ void Player::init()
 	// ３Ｄモデルのスケール変更
 	MV1SetScale(m_modeleHandle, VGet(PlayerSet::kModeleScale, PlayerSet::kModeleScale, PlayerSet::kModeleScale));
 
+	// ３Ｄモデルの不透明度
+	MV1SetOpacityRate(m_modeleHandle, PlayerSet::kAlphaValue);
+
 	// 位置の初期化
 	m_pos = VGet(PlayerSet::kInitPosX, PlayerSet::kInitPosY, PlayerSet::kInitPosZ);
 
@@ -65,11 +68,15 @@ void Player::draw()
 	// モデルの描画
 	MV1DrawModel(m_modeleHandle);
 
+	// デバッグ
+#if false
+
+	// 当たり判定表示
+	DrawSphere3D(m_pos, PlayerSet::kCircleSize, 32, 0xffffff, GetColor(0, 0, 0), true);
+
+	// プレイヤーの座標表示
 	DrawFormatString(0, 1 * 15, 0xffffff, "pos.x:%f pos.y:%f pos.z:%f", m_pos.x, m_pos.y, m_pos.z);
 
-	// 当たり判定の表示
-#if true
-	DrawSphere3D(m_pos, PlayerSet::kCircleSize, 32, 0xffffff, GetColor(0, 0, 0), true);
 #endif
 }
 

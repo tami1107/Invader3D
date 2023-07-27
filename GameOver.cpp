@@ -2,23 +2,39 @@
 #include "Pad.h"
 #include "SceneMain.h"
 
+
 namespace
 {
-	// ゲームオーバーグラフィックの挿入
-	const char* const kGameOverGraphic = "data/gameOver.png";
+	// 文字フォント
+	const char* const kTextFontName = "ベストテン-CRT";
+
+	// 文字フォントサイズ
+	constexpr int kTextFontSize = 200;
+
+	// 文字位置
+	constexpr int kTextInitPosX = 530;
+	constexpr int kTextInitPosY = 300;
+
+	// 振れ幅
+	constexpr float kSinValue = 2.0f;
+
+	// サインカーブのスピード
+	constexpr float kSinSpeedValue = 0.01f;
+
 }
 
-
 GameOver::GameOver():
-	m_graphic(-1),
+	m_fontHandle(-1),
+	m_textSin(0.0f),
+	m_posY(0),
 	m_pSceneMain(nullptr)
 {
 }
 
 GameOver::~GameOver()
 {
-	// グラフィックの削除
-	DeleteGraph(m_graphic);
+	// 作成したフォントデータを削除する
+	DeleteFontToHandle(m_fontHandle);
 
 	// ポインタの削除
 	m_pSceneMain = nullptr;
@@ -28,14 +44,20 @@ GameOver::~GameOver()
 
 void GameOver::init()
 {
-	// グラフィックを挿入する
-	m_graphic = LoadGraph(kGameOverGraphic);
 
+	// フォントの挿入・設定
+	m_fontHandle = CreateFontToHandle(kTextFontName, kTextFontSize, 3);
 
 }
 
 void GameOver::update()
 {
+
+	m_textSin += kSinSpeedValue;
+
+	m_posY = sinf(m_textSin) * kSinValue;
+
+
 	// ゲームオーバーフラグをfalseする
 	if (Pad::isTrigger(PAD_INPUT_10))
 	{
@@ -47,24 +69,28 @@ void GameOver::update()
 void GameOver::draw()
 {
 
-	// 画面を薄暗くする
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 200);
+	// ポーズウィンドウセロファン(黒い)
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 50);
 
-	int x1 = 0;
-	int y1 = 0;
-	int x2 = Game::kScreenWidth;
-	int y2 = Game::kScreenHeight;
+	// 全体的に暗くする
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight,
+		0x000000, true);
 
 
-	//DrawBox(x1, y1, x2, y2, 0x000000, true);
-
+	// 描画ブレンドモードをノーブレンドにする
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 
-	VECTOR pos = VGet(0, 50, 0);
+	// テキストをずらす値
+	int slide = 4;
 
-	// ゲームオーバーのグラフィック描画
-	DrawBillboard3D(pos, 0.5, 0.5, 100.0, 0.0, m_graphic, true);
+	// テキスト(影)
+	DrawStringToHandle(kTextInitPosX + slide, (kTextInitPosY + slide) + m_posY, "GameOver",
+		0x696969, m_fontHandle);
+
+	// テキスト
+	DrawStringToHandle(kTextInitPosX, kTextInitPosY + m_posY, "GameOver",
+		0xffffff, m_fontHandle);
 
 
 }

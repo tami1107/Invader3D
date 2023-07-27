@@ -55,7 +55,7 @@ namespace
 SceneTitle::SceneTitle() :
 	m_isEnd(false),
 	m_fontHandle(-1),
-	m_textSin(2.0f),
+	m_textSin(0.0f),
 	m_fadeValue(0.0f),
 	m_modelHandle(-1),
 	m_lightPos(),

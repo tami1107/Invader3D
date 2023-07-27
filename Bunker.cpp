@@ -1,4 +1,4 @@
-#include "bunker.h"
+#include "Bunker.h"
 #include "SceneMain.h"
 
 namespace
@@ -14,10 +14,6 @@ namespace
 
 	// モデルのスケール
 	constexpr float kModeleScale = 5.5f;
-
-
-	// 透明度(1.0fが不透明、0.0fが透明)
-	constexpr float kAlphaValue = 0.5f;
 
 
 }

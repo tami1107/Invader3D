@@ -36,7 +36,7 @@ namespace
 
 
 	// レベルが上がるごとにスピードを上げる
-	constexpr int kEnemyLvMoveSpeed = 10;
+	constexpr int kEnemyLvMoveSpeed = 5;
 
 	// エネミーの透明度（255が不透明）
 	constexpr int kEnemyAlphaValue = 220;
@@ -68,7 +68,7 @@ namespace
 	constexpr int kPlayerKillParticleDistributedValue = 32;
 
 	// ゲームオーバー時のフレームカウント(プレイヤーがやられてからなんフレーム後にゲームオーバーに移行させるか)
-	constexpr int kGameOverMaxFrame = 30;
+	constexpr int kGameOverMaxFrame = 40;
 
 }
 
@@ -274,16 +274,17 @@ void SceneMain::init()
 	m_pBackGround->init(1);
 	m_pPause->init();
 
-	// ショットにグラフィックを送る
+	// ショットの初期化処理
 	for (int i = 0; i < kPlayerShotMaxNumber; i++)
 	{
 		m_pShot[i]->init();
 	}
-	// エネミーショットにグラフィックを送る
+	// エネミーショットの初期化処理
 	for (int i = 0; i < kEnemyShotMaxNumber; i++)
 	{
 		m_pInvertShot[i]->init();
 	}
+
 
 
 	// エネミーの生成
@@ -303,6 +304,7 @@ void SceneMain::init()
 	// プレイヤー残機の代入
 	m_playerRemaining = kPlayerRemaining;
 
+
 	// ゲームオーバーに移行するためのフレーム初期化
 	m_gameOverCount = kGameOverMaxFrame;
 
@@ -318,8 +320,8 @@ void SceneMain::init()
 	// グラフィック削除
 	MV1DeleteModel(particleModel);
 	
-
-
+	// test
+	m_isGameOver = true;
 }
 
 SceneBase* SceneMain::update()
@@ -433,10 +435,6 @@ SceneBase* SceneMain::update()
 void SceneMain::draw()
 {
 	
-	if (m_isGameOver)
-	{
-		m_pGameOver->draw();
-	}
 
 
 	// クラスの描画処理
@@ -495,6 +493,11 @@ void SceneMain::draw()
 #endif
 
 	m_pPause->draw();
+
+	if (m_isGameOver)
+	{
+		m_pGameOver->draw();
+	}
 }
 
 void SceneMain::FreezeFrame()
@@ -644,6 +647,8 @@ void SceneMain::CreateEnemy()
 		// レベルを上げる
 		m_enemyLv++;
 
+		// エネミーのレベル値を送る
+		m_pMainUI->getEnemyLv(m_enemyLv);
 
 		// 列の初期化
 		m_enemyLineNow = 0;
@@ -830,9 +835,6 @@ void SceneMain::EnemyExistProcess()
 		// エネミーの列の値をあげる
 		m_enemyLineNow++;
 
-		// エネミーのレベル値を送る
-		m_pMainUI->getEnemyLv(m_enemyLv);
-
 		// ショットを消す
 		{
 			for (auto shot : m_pShot)
@@ -916,6 +918,9 @@ void SceneMain::CreateParticle3D(VECTOR pos, int num)
 	// カラー指定
 	VECTOR color = VGet(0, 0, 0);
 
+	// 透明度
+	float alphaValue = 0.0f;
+
 
 	// サイズを変更する
 	switch (num)
@@ -927,6 +932,12 @@ void SceneMain::CreateParticle3D(VECTOR pos, int num)
 
 		// パーティクルの分散量指定
 		particleDistributedValue = kShotParticleDistributedValue;
+
+		// カラー指定
+		color = VGet(Shot::kShotCollarR, Shot::kShotCollarG, Shot::kShotCollarB);
+
+		// 透明度指定
+		alphaValue = 1.0;
 
 		break;
 
@@ -941,6 +952,8 @@ void SceneMain::CreateParticle3D(VECTOR pos, int num)
 		// カラー指定
 		color = VGet(Bunker::kCollarR, Bunker::kCollarG, Bunker::kCollarB);
 
+		// 透明度指定
+		alphaValue = Bunker::kAlphaValue;
 
 		break;
 
@@ -951,6 +964,12 @@ void SceneMain::CreateParticle3D(VECTOR pos, int num)
 
 		// パーティクルの分散量指定
 		particleDistributedValue = kPlayerKillParticleDistributedValue;
+
+		// カラー指定
+		color = VGet(PlayerSet::kCollarR, PlayerSet::kCollarG, PlayerSet::kCollarB);
+
+		// 透明度指定
+		alphaValue = PlayerSet::kAlphaValue;
 
 		break;
 	}
@@ -968,8 +987,9 @@ void SceneMain::CreateParticle3D(VECTOR pos, int num)
 			// ショットを打つたびにカウントを増やす
 			particleCount++;
 
+
 			// ショットを打つ
-			particle3D->start(VECTOR(pos), color, modeleScale);
+			particle3D->start(VECTOR(pos), color, modeleScale, alphaValue);
 		}
 
 		//パーティクルの数が32個を超えたら処理を終える
@@ -1282,8 +1302,11 @@ void SceneMain::ShotToInvertShotCollision()
 							// エネミーの弾を消す
 							invertShot->setExist(false);
 
+
 							// パーティクルを発生させる
 							CreateParticle3D(shot->getPos(),0);
+
+
 						}
 					}
 				}

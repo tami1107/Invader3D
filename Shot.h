@@ -10,7 +10,7 @@ class Shot
 public:
 
 	// ショットのサイズ
-	static constexpr float kShotSize = 1.1f;
+	static constexpr float kShotSize = 1.2f;
 
 	// ショット1カラーR
 	static constexpr float kShotCollarR = 1.0f;

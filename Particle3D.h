@@ -8,10 +8,11 @@ public:
 	Particle3D();
 	virtual ~Particle3D();
 
+
 	void update();
 	void draw();
 
-	void start(VECTOR pos, VECTOR color, float modeleScale);
+	void start(VECTOR pos, VECTOR color, float modeleScale, float alphaValue);
 
 	// ë∂ç›Ç∑ÇÈÇ©
 	bool isExist() const { return m_isExist; }

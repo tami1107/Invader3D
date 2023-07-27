@@ -20,9 +20,14 @@ public:
 	void draw();
 
 private:
-	
-	// グラフィックの挿入
-	int m_graphic;
+	// フォントハンドル
+	int m_fontHandle;
+
+	// テキストのサイン
+	float m_textSin;
+
+	// テキストのY座標
+	int m_posY;
 
 
 	// クラスポインタ
