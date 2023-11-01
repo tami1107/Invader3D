@@ -13,8 +13,13 @@ Enemy::Enemy() :
 	m_shotInterval(0),
 	m_decrementTime(0),
 	m_animationNum(0),
+	m_enemyLineNum(0),
 	m_enemyNum(0),
-	m_LvMove(0),
+	m_moveMaxInterval(EnemySet::kMoveInterval),
+	m_moveInterval(EnemySet::kMoveInterval),
+	m_movingDistance(0.0f),
+	m_movingMaxDistance(0.0f),
+	m_enemyEdgePosX(0.0f),
 	m_pos(),
 	m_color(),
 	m_pSceneMain(nullptr)
@@ -41,18 +46,18 @@ Enemy::~Enemy()
 	}
 }
 
-void Enemy::init(int savePosX, int savePosZ, int enemyNum)
+void Enemy::init(int savePosX, int savePosZ, int enemyLineNum)
 {
 	
 	// 存在している
 	m_isExist = true;
 
-	// 位置の保存
+	// 位置の代入
 	m_savePosX = savePosX;
 	m_savePosZ = savePosZ;
 
-	// エネミーナンバーの保存
-	m_enemyNum = enemyNum;
+	// エネミーの列番号を代入
+	m_enemyLineNum = enemyLineNum;
 
 	
 	// 移動インターバル減少値の初期化
@@ -75,6 +80,10 @@ void Enemy::init(int savePosX, int savePosZ, int enemyNum)
 
 	// アニメーションナンバーの初期化
 	m_animationNum = 0;
+
+	// インターバルの代入
+	m_moveInterval = m_moveMaxInterval;
+
 }
 
 void Enemy::update()
@@ -110,10 +119,30 @@ void Enemy::draw()
 	SetMaterialParam(Material);
 
 
+
+	// 透明にして表示する
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, EnemySet::kAlphaValue);
+
 	// ２ポリゴンの描画
 	DrawPolygon3D(Vertex, 2, m_handle[m_animationNum], true);
 
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+
+	//DrawFormatString(0, 15 * 10, 0xffffff, "インターバルmax%d", m_moveMaxInterval);
+	//DrawFormatString(0, 15 * 11, 0xffffff, "インターバル%d", m_moveInterval);
+
+	//DrawFormatString(300, 15 * m_enemyNum, 0xffffff, "[%d]移動量:%f 最大移動量:%f",
+	//	m_enemyNum, m_movingDistance, m_movingMaxDistance);
 	
+
+		//DrawFormatString(300, 15 * 12+ m_enemyNum, 0xffffff, "移動量:%f", m_movingDistance);
+		//DrawFormatString(300, 15 * 13+i, 0xffffff, "最大移動量:%f", m_movingMaxDistance);
+	
+
+
+
 	// Debug
 	{
 		if (!EnemySet::kDebug)return;
@@ -197,10 +226,7 @@ void Enemy::Move()
 	// 移動インターバル
 
 
-	// 移動するまでにかかるフレーム
-	int moveFrame = EnemySet::kMoveInterval - (m_decrementTime + m_LvMove);
-
-
+	
 	// frameCountが0になったら移動
 	m_frameCount--;
 	if (m_frameCount <= 0)
@@ -208,32 +234,59 @@ void Enemy::Move()
 		// アニメーションを動かす
 		m_animationNum++;
 		// 移動アニメーションは0・1しか使わない為、2以上になったとき0にする
-		if (m_animationNum == 2)
-		{
-			m_animationNum = 0;
-		}
-		
+		m_animationNum %= 2;
 
+
+	
 		// 右に進むかどうかのフラグ処理
-		if (m_pos.x >= (EnemySet::kMovePosX * EnemySet::kLimitMove) + m_savePosX)
+		if (m_movingDistance >= m_movingMaxDistance)
 		{
 			if (m_isRightMove)
 			{
 				m_isRightMove = false;
 
 				m_isUnderMove = true;
+
+				m_movingDistance = 0.0f;
+
+				m_movingMaxDistance = (EnemySet::kLimitMove + m_enemyEdgePosX) * -2;
 			}
 		}
 		// 左に進むかどうかのフラグ処理
-		if (m_pos.x <= -(EnemySet::kMovePosX * EnemySet::kLimitMove)+ m_savePosX)
+		if (m_movingDistance <= m_movingMaxDistance)
 		{
 			if (!m_isRightMove)
 			{
 				m_isRightMove = true;
 
 				m_isUnderMove = true;
+
+				m_movingDistance = 0.0f;
+
+				m_movingMaxDistance = (EnemySet::kLimitMove + m_enemyEdgePosX) * 2;
 			}
 		}
+
+		//// 右に進むかどうかのフラグ処理
+		//if (m_pos.x >= (EnemySet::kMovePosX * EnemySet::kLimitMove) + m_savePosX)
+		//{
+		//	if (m_isRightMove)
+		//	{
+		//		m_isRightMove = false;
+
+		//		m_isUnderMove = true;
+		//	}
+		//}
+		//// 左に進むかどうかのフラグ処理
+		//if (m_pos.x <= -(EnemySet::kMovePosX * EnemySet::kLimitMove) + m_savePosX)
+		//{
+		//	if (!m_isRightMove)
+		//	{
+		//		m_isRightMove = true;
+
+		//		m_isUnderMove = true;
+		//	}
+		//}
 
 		// 一段手前にいくかどうか
 		if (m_isUnderMove)
@@ -244,10 +297,10 @@ void Enemy::Move()
 			m_isUnderMove = false;
 
 
-			m_frameCount = moveFrame;
+			m_frameCount = m_moveInterval;
 
 			// ゲームオーバーするかどうか
-			if (m_pos.z <= EnemySet::kGameOverPosZ)
+			if (m_pos.z <= EnemySet::kGameOverLine * EnemySet::kMovePosZ)
 			{
 				m_pSceneMain->setIsGameOverFlag(true);
 			}
@@ -260,14 +313,18 @@ void Enemy::Move()
 		if (m_isRightMove)
 		{
 			m_pos.x += EnemySet::kMovePosX;
+
+			m_movingDistance += EnemySet::kMovePosX;
 		}
 		else
 		{
 			m_pos.x -= EnemySet::kMovePosX;
+
+			m_movingDistance -= EnemySet::kMovePosX;
 		}
 
 		// 移動フレームを戻す
-		m_frameCount = moveFrame;
+		m_frameCount = m_moveInterval;
 	}
 }
 
@@ -283,16 +340,50 @@ void Enemy::Shot()
 	// ショットを撃つ
 	if (m_shotInterval <= 0)
 	{
-		// ショットを撃つか撃たないかの変数
-		int isShot = 0;
+		// ショットを打つかどうか
+		m_pSceneMain->IsShotEnemy(m_pos, m_enemyNum, m_enemyLineNum);
 
-		// 乱数を取得
-		isShot = GetRand(1);
-
-		if (isShot == 1)
-		{
-			m_pSceneMain->CreateShotEnemy(m_pos, m_enemyNum);
-		}
+	
 		m_shotInterval = EnemySet::kShotInterval;
 	}
 }
+
+void Enemy::LevelUp(float IntervalDecrement)
+{
+	// 移動インターバルを減らす
+	m_moveMaxInterval *= IntervalDecrement;
+
+	// インターバルに代入
+	m_moveInterval = m_moveMaxInterval;
+}
+
+void Enemy::EnemyNumInterval(int interval)
+{
+
+	// インターバルに代入
+	m_moveInterval = interval;
+}
+
+
+
+void Enemy::Reset()
+{
+	// 移動インターバルの初期化
+	m_moveMaxInterval = EnemySet::kMoveInterval;
+
+	// インターバルに代入
+	m_moveInterval = m_moveMaxInterval;
+}
+
+void Enemy::MoveSetting(float enemyEdgePosX)
+{
+	
+
+	m_enemyEdgePosX = enemyEdgePosX;
+
+	// 最大移動量
+	m_movingMaxDistance = EnemySet::kLimitMove + enemyEdgePosX;
+
+	m_movingDistance = 0.0f;
+}
+

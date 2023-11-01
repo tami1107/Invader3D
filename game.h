@@ -7,7 +7,7 @@ namespace Game
 	// ウインドウモード設定
 	constexpr bool kWindowMode = true;
 	// ウインドウ名
-	const char* const kTitleText = "ゲーム名";
+	const char* const kTitleText = "3Dインベーダーゲーム";
 	// ウインドウサイズ
 	constexpr int kScreenWidth = 1800;
 	constexpr int kScreenHeight = 900;

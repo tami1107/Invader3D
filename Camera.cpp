@@ -145,7 +145,6 @@ void Camera::ShakeScreen(int frameCount)
 	int x = GetRand(1);
 	int y = GetRand(1);
 
-
 	// Š„‡
 	int ratio = 100 * frameCount;
 

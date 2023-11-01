@@ -10,19 +10,11 @@ public:
 	// ショットのサイズ
 	static constexpr float kShotSize = 1.1f;
 
-	// ショット1カラーR
-	static constexpr float kShot1CollarR = 0;
-	// ショット1カラーG
-	static constexpr float kShot1CollarG = 1.0;
-	// ショット1カラーB
-	static constexpr float kShot1CollarB = 0;
+	// 透明度（1が不透明）
+	static constexpr float kAlphaValue = 1.0;
 
-	// ショット2カラーR
-	static constexpr float kShot2CollarR = 0;
-	// ショット2カラーG
-	static constexpr float kShot2CollarG = 0;
-	// ショット2カラーB
-	static constexpr float kShot2CollarB = 1.0;
+	// パーティクルのスケール
+	static constexpr float kParticleScale = 1.0;
 
 public:
 	InvertShot();
@@ -51,17 +43,20 @@ public:
 
 public:
 	// グラフィックを受け取る
-	void getShotGraphic(int handle) { m_modeleHandle = handle; }
+	void setShotGraphic(int handle) { m_modeleHandle = handle; }
 
 	// カラー取得
 	void setColor(VECTOR color) { m_color = color; }
+	// 情報の取得
+	VECTOR getColor() const { return m_color; }
+
 public:
 
 	// 弾幕の軌道
 	void BulletTrajectory();
 
-	// 2Dの当たり判定
-	void Collision2D();
+	// 当たり判定
+	void Collision();
 
 	// 移動制限処理
 	void LimitMove();

@@ -140,10 +140,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BackGround.cpp" />
+    <ClCompile Include="BonusEnemy.cpp" />
     <ClCompile Include="Bunker.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameOver.cpp" />
+    <ClCompile Include="GameStart.cpp" />
     <ClCompile Include="InvertShot.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainUI.cpp" />
@@ -161,11 +163,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackGround.h" />
+    <ClInclude Include="BonusEnemy.h" />
     <ClInclude Include="Bunker.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="GameOver.h" />
+    <ClInclude Include="GameStart.h" />
     <ClInclude Include="InvertShot.h" />
     <ClInclude Include="MainUI.h" />
     <ClInclude Include="Pad.h" />

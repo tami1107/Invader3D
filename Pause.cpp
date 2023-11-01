@@ -10,10 +10,10 @@ namespace
 
 
     // 文字フォント
-    const char* const kTextFontName = "NULL";
+    const char* const kTextFontName = "ベストテン-CRT";
 
     // 文字フォントサイズ
-    constexpr int kTextFontSize = 40;
+    constexpr int kTextFontSize = 50;
 
 
     // 画面の中心位置
@@ -32,22 +32,22 @@ namespace
 
 
     // テキスト初期位置
-    constexpr int kModeInitialposX = 600;
+    constexpr int kModeInitialposX = 720;
     constexpr int kModeInitialposY = 330;
 
     // 2列目以降のY座標をずらす
-    constexpr int kSlidePosY = 70;
+    constexpr int kSlidePosY = 100;
 
     // テキストに影みたいな表現をするための差の値
     constexpr int kTextSlide = 3;
 
 
     // テキスト初期位置
-    constexpr int kModeInitialposX2 = 550;
-    constexpr int kModeInitialposY2 = 450;
+    constexpr int kModeInitialposX2 = 720;
+    constexpr int kModeInitialposY2 = 550;
 
-    // 2列目以降のY座標をずらす
-    constexpr int kSlidePosX = 170;
+    // Y座標をずらす
+    constexpr int kSlidePosX = 200;
 
 
 
@@ -157,6 +157,7 @@ void Pause::init()
     m_pos.x = (MenuElement[m_selectNum].x - kTextDistancePos);
     m_pos.y = MenuElement[m_selectNum].y;
 
+
 }
 
 void Pause::update()
@@ -222,8 +223,6 @@ void Pause::SelectProcess()
     // タイトルに戻るが選択されていない場合の処理
     if (!m_titleFlag)
     {
-
-    
         // 番号処理
         {
             if (m_selectInterval == 0)
@@ -433,6 +432,8 @@ void Pause::DrawSelectText()
 {
     sinRate += kTriangleRotSpeed;
 
+
+
    
     {
         int cursorHeight = sinf(sinRate) * kHeight;	// 実際にはHeight/2
@@ -450,16 +451,24 @@ void Pause::DrawSelectText()
     // 項目テキストの表示
     for (int i = 0; i < kSelectMaxNumber; i++)
     {
+
+
         // 半透明にする
         SetDrawBlendMode(DX_BLENDMODE_ALPHA, 150);
 
         // 二重に見せる
+        DrawFormatStringToHandle((kModeInitialposX + 70) + kTextSlide, kModeInitialposY-100,
+            0x696969, m_textFont, "-Pause-");
+
         DrawFormatStringToHandle(MenuElement[i].x + kTextSlide, MenuElement[i].y+ kTextSlide, 
             0x696969,m_textFont, MenuElement[i].name);
 
         // 描画ブレンドモードをノーブレンドにする
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
+
+        DrawFormatStringToHandle((kModeInitialposX + 70), kModeInitialposY - 100,
+            0xffffff, m_textFont, "-Pause-");
 
         DrawFormatStringToHandle(MenuElement[i].x, MenuElement[i].y, MenuElement[i].Cr,
             m_textFont, MenuElement[i].name);

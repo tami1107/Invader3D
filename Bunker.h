@@ -17,6 +17,13 @@ public:
 
 	// 透明度(1.0fが不透明、0.0fが透明)
 	static constexpr float kAlphaValue = 0.5f;
+
+	// パーティクルの量
+	static constexpr int kParticleValue = 32;
+
+	// パーティクルのスケール
+	static constexpr float kParticleScale = 5.0;
+
 public:
 	Bunker();
 	virtual ~Bunker();
@@ -34,21 +41,30 @@ public:
 	// 位置情報を返す
 	VECTOR getPos() const { return m_pos; }
 
+	// 色情報を返す
+	VECTOR getColor() const { return m_color; }
 
 	// 存在するか
 	bool isExist() const { return m_isExist; }
 	void setExist(bool isExist) { m_isExist = isExist; }
 
+	// 番号の取得
+	void setNumber(int number) { m_number = number; }
 
 public:
 	// グラフィックを受け取る
-	void getGraphic(int handle) { m_modeleHandle = handle; }
+	void setGraphic(int handle) { m_modeleHandle = handle; }
 public:
 	// ダメージ処理
 	void DamegeProcess(int damages);
 
+private:
+
 	// あたり判定
 	void Collision2D();
+
+	// カラー処理
+	void ColorProcess();
 
 private:
 
@@ -63,16 +79,16 @@ private:
 	// ヒットポイント
 	int m_hp;
 
-	// アルファブレンドの値
-	int m_alphaValue;
-
-	// アルファブレンドの減少値
-	int m_alphaValueDecrement;
+	// 番号
+	int m_number;
 
 
 	// 表示位置
 	VECTOR m_pos;
-	
+
+	// 色指定
+	VECTOR m_color;
+
 	// クラスポインタ
 	SceneMain* m_pSceneMain;
 };

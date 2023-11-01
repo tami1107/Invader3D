@@ -16,10 +16,10 @@ namespace
 	constexpr int kTextInitPosY = 300;
 
 	// 振れ幅
-	constexpr float kSinValue = 2.0f;
+	constexpr float kSinValue = 10.0f;
 
 	// サインカーブのスピード
-	constexpr float kSinSpeedValue = 0.01f;
+	constexpr float kSinSpeedValue = 0.05f;
 
 }
 
@@ -39,7 +39,6 @@ GameOver::~GameOver()
 	// ポインタの削除
 	m_pSceneMain = nullptr;
 	delete m_pSceneMain;
-
 }
 
 void GameOver::init()
@@ -59,7 +58,7 @@ void GameOver::update()
 
 
 	// ゲームオーバーフラグをfalseする
-	if (Pad::isTrigger(PAD_INPUT_10))
+	if (Pad::isTrigger(PAD_INPUT_1))
 	{
 		m_pSceneMain->setIsGameOverFlag(false);
 		m_pSceneMain->setIsResetFlag(true);
@@ -88,7 +87,7 @@ void GameOver::draw()
 	DrawStringToHandle(kTextInitPosX + slide, (kTextInitPosY + slide) + m_posY, "GameOver",
 		0x696969, m_fontHandle);
 
-	// tekisuto 
+	// テキスト
 	DrawStringToHandle(kTextInitPosX, kTextInitPosY + m_posY, "GameOver",
 		0xffffff, m_fontHandle);
 

@@ -1,14 +1,30 @@
 #include "Player.h"
 #include "Pad.h"
 #include "SceneMain.h"
+#include "MainUI.h"
+
+namespace
+{
+	// 残像のずらす値
+	constexpr int kAfterimageDisplace = 1;
+
+	// 残像の透明度
+	constexpr float kAfterimageAlpha= 0.2;
+}
 
 
 Player::Player():
 	m_modeleHandle(-1),
 	m_isHit(false),
 	m_shotInterval(0),
+	m_isPowerUp(false),
+	m_powerUpFrame(0),
+	m_powerUpNum(0),
+	m_moveSpeed(0.0),
+	m_isChangeStatus(false),
 	m_pos(),
 	m_dir(),
+	m_color(),
 	m_pSceneMain(nullptr)
 {
 }
@@ -28,8 +44,11 @@ void Player::init()
 	// モデルを読み込む
 	m_modeleHandle = MV1LoadModel(PlayerSet::kPlayerGraphicFileName);
 
+	// 色を入れる
+	m_color = VGet(PlayerSet::kCollarR, PlayerSet::kCollarG, PlayerSet::kCollarB);
+
 	// 色設定
-	MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(PlayerSet::kCollarR, PlayerSet::kCollarG, PlayerSet::kCollarB, 1.0f));
+	MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(m_color.x, m_color.y, m_color.z, 1.0f));
 
 	// ３Ｄモデルのスケール変更
 	MV1SetScale(m_modeleHandle, VGet(PlayerSet::kModeleScale, PlayerSet::kModeleScale, PlayerSet::kModeleScale));
@@ -38,13 +57,19 @@ void Player::init()
 	MV1SetOpacityRate(m_modeleHandle, PlayerSet::kAlphaValue);
 
 	// 位置の初期化
-	m_pos = VGet(PlayerSet::kInitPosX, PlayerSet::kInitPosY, PlayerSet::kInitPosZ);
+	m_pos[0] = VGet(PlayerSet::kInitPosX, PlayerSet::kInitPosY, PlayerSet::kInitPosZ);
 
 	// 方向の初期化
 	m_dir = VGet(0.0f, 0.0f, 0.0f);
 
 	// ショットの発生間隔
 	m_shotInterval = 0;
+
+	// ショットのスピードアップフレームの最大値を代入
+	m_powerUpFrame = kPowerUpMaxFrame;
+
+	// 移動スピードを代入
+	m_moveSpeed = PlayerSet::kMoveSpeed;
 }
 
 void Player::update()
@@ -54,6 +79,9 @@ void Player::update()
 
 	// 移動制限
 	LimitMove();
+
+	// パワーアップ処理
+	PowerUpProcess();
 
 	// ショット処理
 	Shot();
@@ -65,8 +93,17 @@ void Player::update()
 
 void Player::draw()
 {
+	
 	// モデルの描画
 	MV1DrawModel(m_modeleHandle);
+
+
+	Afterimage();
+
+
+	//// プレイヤーの座標表示
+	//DrawFormatString(0, 15 * 17, 0xff0000, "pos.x:%f pos.y:%f pos.z:%f", m_pos[0].x, m_pos[0].y, m_pos[0].z);
+
 
 	// デバッグ
 #if false
@@ -130,25 +167,25 @@ void Player::Move()
 	}
 
 	// ベクトルの掛け算
-	VECTOR velocity = VScale(m_dir, PlayerSet::kMoveSpeed);
+	VECTOR velocity = VScale(m_dir, m_moveSpeed);
 	// ベクトルの足し算
-	m_pos = VAdd(m_pos, velocity);
+	m_pos[0] = VAdd(m_pos[0], velocity);
 
 	// 位置情報をモデルに入れる
-	MV1SetPosition(m_modeleHandle, m_pos);
+	MV1SetPosition(m_modeleHandle, m_pos[0]);
 }
 
 void Player::LimitMove()
 {
 	// 左方向の移動制限
-	if (m_pos.x <= -PlayerSet::kMoveLimit)
+	if (m_pos[0].x <= -PlayerSet::kMoveLimit)
 	{
-		m_pos.x = -PlayerSet::kMoveLimit;
+		m_pos[0].x = -PlayerSet::kMoveLimit;
 	}
 	// 右方向の移動制限
-	if (m_pos.x >= PlayerSet::kMoveLimit)
+	if (m_pos[0].x >= PlayerSet::kMoveLimit)
 	{
-		m_pos.x = PlayerSet::kMoveLimit;
+		m_pos[0].x = PlayerSet::kMoveLimit;
 	}
 }
 
@@ -165,10 +202,13 @@ void Player::Shot()
 	if (Pad::isTrigger(PAD_INPUT_1))
 	{
 		if (m_shotInterval <= 0)
-		{
-			m_pSceneMain->CreateShotPlayer(m_pos);
-			m_shotInterval = PlayerSet::kShotInterval;
+		{/*
+			m_pSceneMain->CreateShotPlayer(m_pos, m_isPowerUp, m_powerUpNum);
+			m_shotInterval = PlayerSet::kShotInterval;*/
 		}
+
+		m_pSceneMain->CreateShotPlayer(m_pos[0], m_isPowerUp, m_powerUpNum);
+		m_shotInterval = PlayerSet::kShotInterval;
 	}
 }
 
@@ -184,8 +224,120 @@ void Player::CollisionProcess()
 	m_isHit = false;
 }
 
-void Player::ResetPos()
+void Player::PowerUpProcess()
+{
+
+	if (!m_isPowerUp)return;
+
+	// ステータスを変えてなければ変える
+	if (!m_isChangeStatus)
+	{
+
+		if (m_powerUpNum == 0)// ショットスピードとショットサイズ
+		{
+			// 色を入れる
+			m_color = VGet(kQuickCollarR, kQuickCollarG, kQuickCollarB);
+		}
+		else if (m_powerUpNum == 1)// 連射
+		{
+			// 色を入れる
+			m_color = VGet(kRapidCollarR, kRapidCollarG, kRapidCollarB);
+		}
+		else if (m_powerUpNum == 2)// 貫通、移動スピードUP
+		{
+			// 色を入れる
+			m_color = VGet(kPenetrationCollarR, kPenetrationCollarG, kPenetrationCollarB);
+			
+			// 移動スピードを代入
+			m_moveSpeed = PlayerSet::kMoveSpeed2;
+		}
+
+		// 色設定
+		MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(m_color.x, m_color.y, m_color.z, 1.0f));
+
+
+		m_isChangeStatus = true;
+
+	}
+
+
+	// フレームを減らす
+	m_powerUpFrame--;
+	
+
+	// MainUIのタイマーを動かす
+	m_pMainUI->TimerProcess(m_powerUpFrame);
+
+
+	// m_shotSpeedUpFrameが0になった時、
+	if (m_powerUpFrame < 0)
+	{
+		// 色を入れる
+		m_color = VGet(PlayerSet::kCollarR, PlayerSet::kCollarG, PlayerSet::kCollarB);
+
+		// 色設定
+		MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(m_color.x, m_color.y, m_color.z, 1.0f));
+
+		// パワーアップフレームの最大値を代入
+		m_powerUpFrame = kPowerUpMaxFrame;
+
+		// パワーアップ番号に意味のない数字を入れる
+		m_powerUpNum = kPowerUpMaxNum;
+
+		m_isPowerUp = false;
+
+		m_isChangeStatus = false;
+
+		// 移動スピードを代入
+		m_moveSpeed = PlayerSet::kMoveSpeed;
+	}
+}
+
+void Player::Reset()
 {
 	// 位置の初期化
-	m_pos = VGet(0.0f, PlayerSet::kInitPosY, 0.0f);
+	m_pos[0] = VGet(0.0f, PlayerSet::kInitPosY, 0.0f);
+
+	// 位置情報をモデルに入れる
+	MV1SetPosition(m_modeleHandle, m_pos[0]);
+
+	// パワーアップフレームの最大値を代入
+	m_powerUpFrame = kPowerUpMaxFrame;
+
+	// パワーアップ番号に意味のない数字を入れる
+	m_powerUpNum = kPowerUpMaxNum;
+
+	m_isPowerUp = false;
+
+	// 移動スピードを代入
+	m_moveSpeed = PlayerSet::kMoveSpeed;
+}
+
+void Player::Afterimage()
+{
+
+	if (!m_isPowerUp)return;
+
+	// 残像データを一つづつずらす
+	for (int i = kAfterimageNum - 1; i > 0; i--)
+	{
+		m_pos[i] = m_pos[i - 1];
+
+	}
+	// ３Ｄモデルの不透明度	
+	MV1SetOpacityRate(m_modeleHandle, kAfterimageAlpha);
+
+	for (int i = kAfterimageNum - 1; i >= 0; i -= kAfterimageDisplace)
+	{
+		// 位置情報をモデルに入れる
+		MV1SetPosition(m_modeleHandle, m_pos[i]);
+		
+		// モデルの描画
+		MV1DrawModel(m_modeleHandle);
+
+		
+	}
+	// ３Ｄモデルの不透明度
+	MV1SetOpacityRate(m_modeleHandle, PlayerSet::kAlphaValue);
+
 }

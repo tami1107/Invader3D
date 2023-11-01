@@ -8,7 +8,7 @@
 namespace
 {
 	// 文字フォント
-	const char* const kTextFontName = "NULL";
+	const char* const kTextFontName = "ベストテン-CRT";
 
 	// 文字フォントサイズ
 	constexpr int kTextFontSize = 60;
@@ -20,7 +20,7 @@ namespace
 	// 文字
 	const char* const kText = "- P u s h ' A ' -";
 
-	// 文字の振れ幅
+	// サイン幅
 	constexpr float kTextSinValue = 255.0f;
 
 	// 文字のサインカーブのスピード
@@ -120,13 +120,8 @@ SceneBase* SceneTitle::update()
 	m_fadeValue = (((sinf(m_textSin) * kTextSinValue)+ kTextSinValue)/2);
 
 
-
 	// モデルの移動処理
 	ModelMove();
-
-
-
-	
 
 
 	// クラスのアップデート処理

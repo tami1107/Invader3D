@@ -17,6 +17,7 @@ Particle::Particle() :
 	m_vec(),
 	m_color(),
 	m_handle(-1),
+	m_alphaVal(0),
 	m_isExist(false)
 {	
 	// ƒ|ƒŠƒSƒ“‚Ì‰Šúİ’è
@@ -61,9 +62,13 @@ void Particle::draw()
 
 	SetMaterialParam(Material);
 
+	// “§–¾‚É‚µ‚Ä•\¦‚·‚é
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, m_alphaVal);
+
 	// ‚Qƒ|ƒŠƒSƒ“‚Ì•`‰æ
 	DrawPolygon3D(Vertex, 2, m_handle, true);
 
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// ‹…‚Ì•\¦
 	//DrawSphere3D(m_pos, kSize, 32, 0xffffff, GetColor(0, 0, 0), true);
@@ -73,18 +78,19 @@ void Particle::draw()
 
 }
 
-void Particle::start(VECTOR pos, VECTOR color)
+void Particle::start(VECTOR pos, VECTOR color, int alphaVal)
 {
 	m_isExist = true;
 	m_pos = pos;
+	m_alphaVal = alphaVal;
 
-	
 	m_vec.x = static_cast<float>(GetRand(6) - 3);
-	m_vec.y = static_cast<float>(GetRand(3)-1);
+	m_vec.y = static_cast<float>(GetRand(2) - 1);
 	m_vec.z = static_cast<float>(GetRand(6));
 
 	m_color = color;
 }
+
 
 void Particle::InitPolygon()
 {

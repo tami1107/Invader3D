@@ -48,6 +48,9 @@ void InvertShot::start(VECTOR pos)
 
 	// 位置情報をモデルに入れる
 	MV1SetPosition(m_modeleHandle, m_pos);
+
+
+
 }
 
 void InvertShot::init()
@@ -65,7 +68,7 @@ void InvertShot::update()
 	BulletTrajectory();
 
 	// 2Dの当たり判定
-	Collision2D();
+	Collision();
 
 	// 移動制限
 	LimitMove();
@@ -99,7 +102,7 @@ void InvertShot::BulletTrajectory()
 	MV1SetPosition(m_modeleHandle, m_pos);
 }
 
-void InvertShot::Collision2D()
+void InvertShot::Collision()
 {
 	// 円形の当たり判定
 	{

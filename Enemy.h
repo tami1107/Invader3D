@@ -1,7 +1,7 @@
 #pragma once
 #include "game.h"
 #include "Setting.h"
-
+#include "Vec2.h"
 
 class SceneMain;
 class Enemy
@@ -29,9 +29,15 @@ public:
 	void setExist(bool isExist) { m_isExist = isExist; }
 
 	// エネミーの番号を返す
-	int enemyNum() const { return m_enemyNum; }
-public:
+	int getEnemyLineNum() const { return m_enemyLineNum; }
 
+	// カラーの値を返す
+	VECTOR getColor() const { return m_color; }
+
+	// 現在のインターバルを返す
+	int getMoveInterval() const { return m_moveMaxInterval; }
+
+public:
 
 	// グラフィックデータ設定
 	void setHandle(int index, int handle) { m_handle[index] = handle; }
@@ -40,10 +46,11 @@ public:
 	void setColor(VECTOR color) { m_color = color; }
 
 	// 移動までにかかる時間を減らす値を取得
-	void getDecrementTime(int decrementTime) { m_decrementTime = decrementTime; }
+	void setDecrementTime(int decrementTime) { m_decrementTime = decrementTime; }
 
-	// レベルによる移動にかかる時間
-	void getLvMoveTime(int lvMove) { m_LvMove = lvMove; }
+	// エネミーの番号を受け取る
+	void setEnemyNum(int enemyNum) { m_enemyNum = enemyNum; }
+
 
 public:
 	// ポリゴン初期設定
@@ -58,10 +65,23 @@ public:
 	// ショット処理
 	void Shot();
 
+	// レベルアップ設定
+	void LevelUp(float IntervalDecrement);
+
+	// エネミー数インターバル
+	void EnemyNumInterval(int interval);
+
+	// リセット処理
+	void Reset();
+
+	// 移動設定
+	void MoveSetting(float enemyEdgePosX);
+
 private:
 	
 	// 存在フラグ
 	bool m_isExist;
+
 
 
 	// 保存位置
@@ -92,10 +112,26 @@ private:
 	int m_animationNum;
 
 	// エネミーナンバー
+	int m_enemyLineNum;
+
+
+	// エネミー番号
 	int m_enemyNum;
 
-	// レベルによる移動スピード
-	int m_LvMove;
+	// 移動最大インターバル
+	int m_moveMaxInterval;
+
+	// 移動インターバル
+	int m_moveInterval;
+
+	// 移動量
+	float m_movingDistance;
+
+	// 最大移動量
+	float m_movingMaxDistance;
+
+	// エネミー端の座標
+	float m_enemyEdgePosX;
 
 	// 表示位置
 	VECTOR m_pos;

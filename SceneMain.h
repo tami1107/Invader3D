@@ -16,17 +16,19 @@ class BackGround;
 class Particle;
 class Particle3D;
 class Pause;
+class GameStart;
+class BonusEnemy;
 class SceneMain : public SceneBase
 {
 public:
 	// ショットの最大数
-	static constexpr int kPlayerShotMaxNumber = 1;
+	static constexpr int kPlayerShotMaxNumber = 10;
 
 	// エネミーのショット最大数
 	static constexpr int kEnemyShotMaxNumber = 2;
 
 	// エネミー最大数(kEnemyMaxLineの値で割った数が偶数)
-	static constexpr int kEnemyMaxNum = 10;
+	static constexpr int kEnemyMaxNum = 8;
 
 	// エネミーの最大行
 	static constexpr int kEnemyMaxLine = 2;
@@ -47,6 +49,7 @@ public:
 
 	// ヒットストップ時に止める時間（フレーム）
 	static constexpr int kFreezeFrameMaxCount = 60;
+
 public:
 	SceneMain();
 
@@ -72,6 +75,9 @@ public:
 	// タイトルに戻るかどうかのフラグを取得する
 	void setIsTurnTitle(bool isTurnTitle) { m_isTurnTitle = isTurnTitle; }
 
+	// ゲームスタートフラグの取得
+	void setIsGameStartFlag(bool isGameStart) { m_isGameStart = isGameStart; }
+
 public:
 
 	// ヒットストップ処理
@@ -79,6 +85,9 @@ public:
 
 	// リセット処理
 	void RsetProcess();
+
+	// 得点処理
+	void ScoreProcess(int score);
 
 	// エネミーの生成
 	void CreateEnemy();
@@ -93,22 +102,26 @@ public:
 	void EnemyExistProcess();
 
 	// パーティクル生成
-	void CreateParticle(VECTOR pos, int colorNum);
+	void CreateParticle(VECTOR pos, VECTOR color, int particleValue,int alphaValue);
 
 	// パーティクル生成3D
-	void CreateParticle3D(VECTOR pos, int num);
+	void CreateParticle3D(VECTOR pos, VECTOR color, int particleValue, float alphaValue, float scale, bool isDualColor = false, VECTOR color2 = VGet(0, 0, 0), float alphaValue2 = 0.0f, float scale2 = 0.0f);
 
 	// ゲームオーバーになるまでのカウント処理
 	void GameOverCount();
 
 	// プレイヤーがショットを撃つ
-	bool CreateShotPlayer(VECTOR pos);
+	bool CreateShotPlayer(VECTOR pos, bool isPowerUp, int powerUpNum);
 
 	// エネミーがショットを撃つ
-	bool CreateShotEnemy(VECTOR pos, int enemyNum);
+	bool CreateShotEnemy(VECTOR pos, int enemyLineNum);
+
+	// エネミーショットフラグ
+	void IsShotEnemy(VECTOR pos, int enemyNum, int enemyLineNum);
+
 
 	// エネミーとショットのあたり判定
-	void EnemyToShotCollision();
+	void EnemyToShotCollision(int num, VECTOR pos, bool isPenetration, float shotSize);
 
 	// トーチカとショットのあたり判定
 	void BunkerToShotCollision();
@@ -117,7 +130,7 @@ public:
 	void BunkerToInvertShotCollision();
 
 	// プレイヤーショットとエネミーショットの当たり判定
-	void ShotToInvertShotCollision();
+	void ShotToInvertShotCollision(bool isPenetration, float shotSize);
 
 private:
 
@@ -159,14 +172,11 @@ private:
 	// プレイヤー残機
 	int m_playerRemaining;
 
-	// スコア
-	int m_score;
-
 	// エネミーのグラフィック
 	int m_enemyGraphic[EnemySet::kEnemyGraphicNum];
 
 	// ショットのグラフィック
-	int m_shotGraphic;
+	int m_shotGraphic[kPlayerShotMaxNumber];
 
 	// エネミーショットのグラフィック
 	int m_invertShotGraphic[kEnemyShotMaxNumber];
@@ -178,8 +188,8 @@ private:
 	// トーチカのグラフィック
 	int m_bunkerGraphic[kBunkerMaxNum];
 
-	// エネミー番号
-	int m_enemyNum[kEnemyMaxNum];
+	// エネミー列番号
+	int m_enemyLineNum;
 
 	// ゲームオーバーになるまでのカウント
 	int m_gameOverCount;
@@ -193,7 +203,10 @@ private:
 	// タイトルに戻るかどうかのフラグ
 	bool m_isTurnTitle;
 
+	// ゲームを始めるかどうかのフラグ
+	bool m_isGameStart;
 
+	
 
 	// クラスポインタ
 	std::shared_ptr<Player>m_pPlayer;
@@ -208,4 +221,6 @@ private:
 	std::shared_ptr<Particle>m_pParticle[kParticleMaxNum];
 	std::shared_ptr<Particle3D>m_pParticle3D[kParticleMaxNum];
 	std::shared_ptr<Pause>m_pPause;
+	std::shared_ptr<GameStart>m_pGameStart;
+	std::shared_ptr<BonusEnemy>m_pBonusEnemy;
 };

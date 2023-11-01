@@ -22,9 +22,9 @@ Bunker::Bunker():
 	m_isExist(true),
 	m_modeleHandle(-1),
 	m_hp(0),
-	m_alphaValue(0),
-	m_alphaValueDecrement(0),
+	m_number(),
 	m_pos(),
+	m_color(),
 	m_pSceneMain(nullptr)
 {
 }
@@ -51,11 +51,6 @@ void Bunker::init(int savePosX)
 	// 最大HP量を代入
 	m_hp = kMaxHp;
 
-	// アルファブレンドの最大値を代入
-	m_alphaValue = 255;
-
-	// アルファブレンドの減少値を代入
-	m_alphaValueDecrement = m_alphaValue / kMaxHp;
 
 	// ３Ｄモデルのスケール変更
 	MV1SetScale(m_modeleHandle, VGet(kModeleScale, kModeleScale, kModeleScale));
@@ -63,11 +58,11 @@ void Bunker::init(int savePosX)
 	// 位置情報をモデルに入れる
 	MV1SetPosition(m_modeleHandle, m_pos);
 
-	// 色設定
-	MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(kCollarR, kCollarG, kCollarB, 1.0f));
-
 	// ３Ｄモデルの不透明度
 	MV1SetOpacityRate(m_modeleHandle, kAlphaValue);
+
+	// カラー処理
+	ColorProcess();
 }
 
 void Bunker::update()
@@ -83,19 +78,17 @@ void Bunker::draw()
 	if (!m_isExist)return;
 
 	
-
 	// モデルの描画
 	MV1DrawModel(m_modeleHandle);
 
 
 
 #if true
-	// ダメージを受けるたびに薄くする
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, m_alphaValue);
+
 	// 球の表示
 	DrawSphere3D(m_pos, kCircleSize, 32, 0x0000ff, GetColor(0, 0, 0), true);
 
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 #endif
 
 }
@@ -105,15 +98,18 @@ void Bunker::DamegeProcess(int damages)
 	// HPからダメージを引く
 	m_hp -= damages;
 
-	// アルファブレンドを引く
-	m_alphaValue -= m_alphaValueDecrement;
+
+
+	// カラー処理
+	ColorProcess();
+
 
 	// HPが0の場合、存在を消す
 	if (m_hp <= 0)
 	{
 		m_isExist = false;
 
-		m_pSceneMain->CreateParticle3D(m_pos,1);
+		m_pSceneMain->CreateParticle3D(m_pos, m_color, kParticleValue, kAlphaValue, kParticleScale);
 	}
 }
 
@@ -123,4 +119,48 @@ void Bunker::Collision2D()
 	m_pSceneMain->BunkerToInvertShotCollision();
 	// トーチカとプレイヤーショットのあたり判定
 	m_pSceneMain->BunkerToShotCollision();
+}
+
+void Bunker::ColorProcess()
+{
+	// カラー処理
+	{
+		float H = m_hp * (512.0f / kMaxHp) - 100;
+
+		float R = min(max((384 - H), 0), 0xff);
+		float G = min(max((H + 64), 0), 0xff);
+		float B = max((H - 384), 0);
+
+
+
+		float color[3] = { R ,G ,B };
+
+
+		// collarの値を求める
+		{
+			// 割合
+			float ratio;
+
+			// パーセントを入れる
+			float percentage[3];
+
+			// colorFを入れる
+			float colorF[3];
+
+			for (int i = 0; i < 3; i++)
+			{
+				ratio = 100.0 * color[i];
+				percentage[i] = ratio / 255;
+
+				colorF[i] = percentage[i] * 0.01;
+			}
+
+			// 色情報取得
+			m_color = VGet(colorF[0], colorF[1], colorF[2]);
+		}
+
+		// 色設定
+		MV1SetMaterialDifColor(m_modeleHandle, 0, GetColorF(m_color.x, m_color.y, m_color.z, 1.0f));
+
+	}
 }

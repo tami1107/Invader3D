@@ -59,7 +59,6 @@ void BackGround::draw()
 
 	// ライティング関連
 #if true
-
 	VECTOR Direction = VGet(0, 30, 50);
 	ChangeLightTypeDir(Direction);
 
@@ -96,8 +95,9 @@ void BackGround::DrawLine()
 
 	// ラインの縦幅
 	float lineWidthPos = EnemySet::kMovePosZ;
-	// ラインの横幅
-	lineHeightSize = (EnemySet::kLimitMove * EnemySet::kMovePosX) * 2.5;
+	
+
+	lineHeightSize = EnemySet::kLimitMove * 1.1;
 	// ラインの列（0も含むので+１する）
 	float lineArray = (EnemySet::kInitPosZ / lineWidthPos) + 1;
 
